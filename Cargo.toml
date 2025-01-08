@@ -1,0 +1,25 @@
+[package]
+name = "async-llm"
+version = "0.1.0"
+edition = "2021"
+description = "A Rust library for OpenAI-compatible APIs"
+license = "MIT"
+authors = ["Quan Hua <quanhua92@gmail.com>"]
+categories = ["api-bindings", "web-programming", "asynchronous"]
+documentation = "https://docs.rs/async-llm"
+homepage = "https://github.com/quanhua92/async-llm"
+keywords = ["async", "ai", "llm", "openai", "ollama", "openrouter", "gemini"]
+repository = "https://github.com/quanhua92/async-llm"
+
+[dependencies]
+derive_builder = "0.20.2"
+thiserror = "2.0.10"
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
+
+tracing = { version = "0.1.41", optional = true }
+tracing-log = { version = "0.2", optional = true }
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"], optional = true }
+
+[features]
+default = ["use-tracing"]
+use-tracing = ["tracing", "tracing-log", "tracing-subscriber"]

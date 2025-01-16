@@ -4,6 +4,7 @@ pub mod completions;
 pub mod error;
 pub mod http;
 pub mod providers;
+pub mod requests;
 pub mod types;
 pub mod utils;
 

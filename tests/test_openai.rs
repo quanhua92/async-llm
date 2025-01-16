@@ -7,6 +7,5 @@ use test_utils::common_tests;
 pub async fn test_chat_completions_simple() -> Result<(), String> {
     init_tracing();
     let _ = common_tests::common_test_chat_completions_simple().await;
-    assert!(false);
     Ok(())
 }

@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use std::pin::Pin;
 
 use crate::{error::Error, http::HttpClient, Client, Provider};
@@ -19,10 +20,16 @@ impl<'c, P: Provider, H: HttpClient> Chat<'c, P, H> {
         Self { client }
     }
 
-    pub async fn create(
-        &self,
-        request: ChatCompletionRequest,
-    ) -> Result<ChatCompletionResponse, Error> {
+    pub async fn create<T>(&self, request: T) -> Result<ChatCompletionResponse, Error>
+    where
+        T: TryInto<ChatCompletionRequest>,
+        T::Error: Debug,
+    {
+        let request: ChatCompletionRequest = request.try_into().map_err(|e| {
+            Error::InvalidArgument(format!(
+                "Failed to convert to ChatCompletionRequest. Error = {e:?}"
+            ))
+        })?;
         let stream = request.stream.unwrap_or(false);
         match stream {
             true => Err(Error::InvalidArgument(
@@ -36,13 +43,22 @@ impl<'c, P: Provider, H: HttpClient> Chat<'c, P, H> {
             }
         }
     }
-    pub async fn create_stream(
+    pub async fn create_stream<T>(
         &self,
-        request: ChatCompletionRequest,
+        request: T,
     ) -> Result<
         Pin<Box<dyn Stream<Item = Result<ChatCompletionResponseStream, Error>> + Send>>,
         Error,
-    > {
+    >
+    where
+        T: TryInto<ChatCompletionRequest>,
+        T::Error: Debug,
+    {
+        let request: ChatCompletionRequest = request.try_into().map_err(|e| {
+            Error::InvalidArgument(format!(
+                "Failed to convert to ChatCompletionRequest. Error = {e:?}"
+            ))
+        })?;
         let stream = request.stream.unwrap_or(false);
         match stream {
             false => Err(Error::InvalidArgument(

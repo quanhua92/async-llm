@@ -19,8 +19,20 @@ impl From<&str> for Content {
     }
 }
 
+impl From<String> for Content {
+    fn from(value: String) -> Self {
+        Self::Text(value)
+    }
+}
+
 impl From<Vec<&str>> for Content {
     fn from(value: Vec<&str>) -> Self {
         Self::Array(value.iter().map(|v| v.to_string()).collect())
+    }
+}
+
+impl From<Vec<String>> for Content {
+    fn from(array: Vec<String>) -> Self {
+        Self::Array(array)
     }
 }

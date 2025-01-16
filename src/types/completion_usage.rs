@@ -19,6 +19,18 @@ pub struct CompletionUsage {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct CompletionUsageStream {
+    /// Number of tokens in the generated completion.
+    pub completion_tokens: Option<u32>,
+
+    /// Number of tokens in the prompt.
+    pub prompt_tokens: Option<u32>,
+
+    /// Total number of tokens used in the request (prompt + completion).
+    pub total_tokens: Option<u32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct CompletionTokensDetails {
     /// When using Predicted Outputs, the number of tokens in the prediction that appeared in the completion.
     pub accepted_prediction_tokens: Option<u32>,

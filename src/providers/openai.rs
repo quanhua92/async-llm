@@ -1,8 +1,11 @@
+use std::pin::Pin;
+
 use async_trait::async_trait;
 use derive_builder::Builder;
+use futures::Stream;
 
 use crate::{
-    chat::{ChatCompletionRequest, ChatCompletionResponse},
+    chat::{ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseStream},
     completions::{CompletionRequest, CompletionResponse},
     error::Error,
     http::HttpClient,
@@ -32,6 +35,16 @@ impl Provider for OpenAIProvider {
         request: ChatCompletionRequest,
     ) -> Result<ChatCompletionResponse, Error> {
         client.post("/chat/completions", request).await
+    }
+    async fn chat_stream(
+        &self,
+        client: &impl HttpClient,
+        request: ChatCompletionRequest,
+    ) -> Result<
+        Pin<Box<dyn Stream<Item = Result<ChatCompletionResponseStream, Error>> + Send>>,
+        Error,
+    > {
+        client.post_stream("/chat/completions", request).await
     }
 
     async fn completions(

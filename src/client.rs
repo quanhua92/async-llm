@@ -12,7 +12,7 @@ pub struct Client<P: Provider, H: HttpClient> {
 }
 
 impl<P: Provider, H: HttpClient> Client<P, H> {
-    pub fn new_with_args(provider: P, http_client: H) -> Self {
+    pub fn with_args(provider: P, http_client: H) -> Self {
         Client {
             provider,
             http_client,

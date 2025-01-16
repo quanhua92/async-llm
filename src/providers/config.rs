@@ -19,6 +19,10 @@ pub trait Config: Debug + Clone + Send + Sync {
     fn base_url(&self) -> &str;
 
     fn api_key(&self) -> Option<&SecretString>;
+
+    fn stream_done_message(&self) -> &'static str {
+        "[DONE]"
+    }
 }
 
 #[derive(Debug, Clone, Builder)]

@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, thiserror::Error)]
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
     // -- Argument
     #[error("invalid argument: {0}")]
@@ -11,6 +11,16 @@ pub enum Error {
     // -- Config
     #[error("invalid config: {0}")]
     InvalidConfig(String),
+
+    // -- Execution
+    #[error("http client error: {0}")]
+    HttpClient(String),
+
+    #[error("stream error: {0}")]
+    Stream(String),
+
+    #[error("json error: {0}")]
+    Json(#[from] serde_json::Error),
 }
 
 impl From<derive_builder::UninitializedFieldError> for Error {

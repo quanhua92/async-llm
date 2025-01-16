@@ -1,9 +1,10 @@
-use std::fmt::Debug;
+use std::{fmt::Debug, pin::Pin};
 
 use async_trait::async_trait;
+use futures::Stream;
 
 use crate::{
-    chat::{ChatCompletionRequest, ChatCompletionResponse},
+    chat::{ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseStream},
     completions::{CompletionRequest, CompletionResponse},
     error::Error,
     http::HttpClient,
@@ -25,6 +26,15 @@ pub trait Provider: Debug + Send + Sync {
         client: &impl HttpClient,
         request: ChatCompletionRequest,
     ) -> Result<ChatCompletionResponse, Error>;
+
+    async fn chat_stream(
+        &self,
+        client: &impl HttpClient,
+        request: ChatCompletionRequest,
+    ) -> Result<
+        Pin<Box<dyn Stream<Item = Result<ChatCompletionResponseStream, Error>> + Send>>,
+        Error,
+    >;
 
     async fn completions(
         &self,

@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     chat::{
-        ChatCompletionRequestDeveloperMessageBuilder, ChatCompletionRequestMessage,
-        ChatCompletionRequestSystemMessageBuilder, ChatCompletionRequestToolMessageBuilder,
-        ChatCompletionRequestUserMessageBuilder,
+        ChatCompletionRequestAssistantMessageBuilder, ChatCompletionRequestDeveloperMessageBuilder,
+        ChatCompletionRequestMessage, ChatCompletionRequestSystemMessageBuilder,
+        ChatCompletionRequestToolMessageBuilder, ChatCompletionRequestUserMessageBuilder,
     },
     error::Error,
     types::{AssistantContent, Content},
@@ -47,7 +47,11 @@ impl ChatMessage {
     }
 
     pub fn assistant(message: impl Into<MessageContent>) -> Self {
-        todo!()
+        Self::Assistant {
+            message_content: Some(message.into()),
+            refusal: None,
+            audio: None,
+        }
     }
 
     pub fn tool(message: impl Into<MessageContent>, tool_call_id: impl Into<String>) -> Self {
@@ -104,7 +108,16 @@ impl TryInto<ChatCompletionRequestMessage> for ChatMessage {
                 message_content,
                 refusal,
                 audio,
-            } => todo!(),
+            } => match message_content {
+                Some(message_content) => {
+                    let assistant_content: AssistantContent = message_content.try_into()?;
+                    ChatCompletionRequestAssistantMessageBuilder::default()
+                        .content(assistant_content)
+                        .build()?
+                        .into()
+                }
+                None => todo!(),
+            },
         })
     }
 }

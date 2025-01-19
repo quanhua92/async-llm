@@ -7,7 +7,7 @@ use crate::error::Error;
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 pub enum ChatTool {
-    Function(ChatToolFunction),
+    Function { function: ChatToolFunction },
 }
 
 #[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
@@ -31,4 +31,36 @@ pub struct ChatToolFunction {
     /// Whether to enable strict schema adherence when generating the function call. If set to true, the model will follow the exact schema defined in the `parameters` field. Only a subset of JSON Schema is supported when `strict` is `true`. Learn more about Structured Outputs in the [function calling guide](https://platform.openai.com/docs/guides/function-calling).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub strict: Option<bool>,
+}
+
+impl Into<ChatTool> for ChatToolFunction {
+    fn into(self) -> ChatTool {
+        ChatTool::Function { function: self }
+    }
+}
+
+impl ChatToolFunction {
+    pub fn new(name: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            description: None,
+            parameters: None,
+            strict: None,
+        }
+    }
+
+    pub fn description(mut self, description: impl Into<String>) -> Self {
+        self.description = Some(description.into());
+        self
+    }
+
+    pub fn strict(mut self, value: bool) -> Self {
+        self.strict = Some(value);
+        self
+    }
+
+    pub fn parameters(mut self, parameters: serde_json::Value) -> Self {
+        self.parameters = Some(parameters);
+        self
+    }
 }

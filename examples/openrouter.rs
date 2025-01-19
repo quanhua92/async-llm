@@ -1,10 +1,11 @@
 use async_llm::{
     init_tracing,
-    types::{ChatResponseFormat, JsonSchema},
+    types::{ChatResponseFormat, ChatToolFunction, JsonSchema},
     ChatMessage, ChatRequest, Error,
 };
 use serde_json::json;
 
+#[allow(unused)]
 async fn example_basic() -> Result<(), Error> {
     let request = ChatRequest::new(
         "meta-llama/llama-3.2-3b-instruct:free",
@@ -19,6 +20,7 @@ async fn example_basic() -> Result<(), Error> {
     Ok(())
 }
 
+#[allow(unused)]
 async fn example_assistant_prefill() -> Result<(), Error> {
     let request = ChatRequest::new(
         "mistralai/mistral-7b-instruct:free",
@@ -36,6 +38,7 @@ async fn example_assistant_prefill() -> Result<(), Error> {
     Ok(())
 }
 
+#[allow(unused)]
 async fn example_structured_outputs_json_object() -> Result<(), Error> {
     let request = ChatRequest::new(
         "mistralai/ministral-8b",
@@ -61,6 +64,7 @@ async fn example_structured_outputs_json_object() -> Result<(), Error> {
     Ok(())
 }
 
+#[allow(unused)]
 async fn example_structured_outputs_json_schema() -> Result<(), Error> {
     let request = ChatRequest::new(
         "mistralai/ministral-8b",
@@ -98,6 +102,47 @@ async fn example_structured_outputs_json_schema() -> Result<(), Error> {
     Ok(())
 }
 
+#[allow(unused)]
+async fn example_tool_calls() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "mistralai/ministral-8b",
+        // "openai/gpt-4o-mini",
+        // "google/gemini-flash-1.5-8b", // error
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user(r#"What's the weather like in Vietnam?"#),
+        ],
+    )
+    .tools(vec![ChatToolFunction::new("get_current_weather")
+        .strict(true)
+        .description("Get the current weather in a given location")
+        .parameters(json!({
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "The city and state, e.g. San Francisco, CA"
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "celsius",
+                "fahrenheit"
+              ]
+            }
+          },
+          "required": [
+            "location"
+          ],
+          "additionalProperties": false
+        }))]);
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     dotenvy::dotenv().ok();
@@ -112,6 +157,7 @@ async fn main() -> Result<(), Error> {
     // TODO: Images & Multimodel: image_url
     // TODO: Images & Multimodel: base64 image
     // TODO: Tool Calls
+    example_tool_calls().await?;
 
     // Structured outputs
     // example_structured_outputs_json_object().await?;

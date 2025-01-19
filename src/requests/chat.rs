@@ -111,8 +111,9 @@ impl ChatRequest {
         self
     }
 
-    pub fn tools(mut self, tools: Vec<ChatTool>) -> Self {
-        self.builder.tools(tools);
+    pub fn tools(mut self, tools: Vec<impl Into<ChatTool>>) -> Self {
+        self.builder
+            .tools(tools.into_iter().map(Into::into).collect::<Vec<ChatTool>>());
         self
     }
 

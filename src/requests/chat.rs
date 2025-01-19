@@ -1,7 +1,11 @@
 use crate::{
-    chat::{ChatCompletionRequest, ChatCompletionRequestBuilder, ChatCompletionRequestMessage},
+    chat::{
+        ChatCompletionRequest, ChatCompletionRequestBuilder, ChatCompletionRequestMessage,
+        ChatCompletionResponse,
+    },
     error::Error,
     types::ChatTool,
+    Client,
 };
 
 use super::{message::MessageContent, ChatMessage};
@@ -52,6 +56,10 @@ impl ChatRequest {
         let messages: Result<Vec<ChatCompletionRequestMessage>, Error> =
             self.messages.into_iter().map(|i| i.try_into()).collect();
         self.builder.messages(messages?).build()
+    }
+
+    pub async fn send(self) -> Result<ChatCompletionResponse, Error> {
+        Ok(Client::new().chat().create(self).await?)
     }
 }
 
@@ -106,6 +114,14 @@ impl ChatRequest {
     pub fn tools(mut self, tools: Vec<ChatTool>) -> Self {
         self.builder.tools(tools);
         self
+    }
+}
+
+impl ChatRequest {
+    /// This method clones the ChatRequest, builds the ChatCompletionRequest and returns a pretty string of that request
+    pub fn to_string_pretty(&self) -> Result<String, Error> {
+        let request: ChatCompletionRequest = self.clone().try_into()?;
+        Ok(serde_json::to_string_pretty(&request)?)
     }
 }
 

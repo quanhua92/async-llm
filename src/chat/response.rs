@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::types::{ChatChoice, CompletionUsage, CompletionUsageStream};
+use crate::{
+    types::{ChatChoice, CompletionUsage, CompletionUsageStream},
+    Error,
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChatCompletionResponse {
@@ -58,4 +61,10 @@ pub struct ChatCompletionResponseStream {
 
     /// Usage statistics for the completion request.
     pub usage: Option<CompletionUsageStream>,
+}
+
+impl ChatCompletionResponse {
+    pub fn to_string_pretty(&self) -> Result<String, Error> {
+        Ok(serde_json::to_string_pretty(self)?)
+    }
 }

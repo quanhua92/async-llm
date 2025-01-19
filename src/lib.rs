@@ -9,4 +9,7 @@ pub mod types;
 pub mod utils;
 
 pub use client::Client;
+pub use error::Error;
 pub use providers::Provider;
+pub use requests::{ChatMessage, ChatRequest};
+pub use utils::init_tracing;

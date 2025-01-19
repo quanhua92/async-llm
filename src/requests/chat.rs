@@ -4,7 +4,7 @@ use crate::{
         ChatCompletionResponse,
     },
     error::Error,
-    types::ChatTool,
+    types::{ChatResponseFormat, ChatTool},
     Client,
 };
 
@@ -113,6 +113,11 @@ impl ChatRequest {
 
     pub fn tools(mut self, tools: Vec<ChatTool>) -> Self {
         self.builder.tools(tools);
+        self
+    }
+
+    pub fn response_format(mut self, response_format: impl Into<ChatResponseFormat>) -> Self {
+        self.builder.response_format(response_format.into());
         self
     }
 }

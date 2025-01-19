@@ -38,8 +38,29 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
                     e.to_string()
                 ))
             })?;
-        let value: serde_json::Value = resp.json().await.unwrap();
-        Ok(serde_json::from_value(value).unwrap())
+        let status_code = resp.status();
+        if status_code.is_success() {
+            let value: serde_json::Value = resp.json().await.map_err(|e| {
+                Error::HttpClient(format!(
+                    "Failed to read JSON from HTTP request. Error = {}",
+                    e.to_string()
+                ))
+            })?;
+            if let Some(_) = value.get("choices") {
+                return Ok(serde_json::from_value(value.clone()).map_err(|e| {
+                    tracing::debug!("value =\n {value:?}");
+                    e
+                })?);
+            }
+            if let Some(error) = value.get("error") {
+                return Err(Error::HttpClient(format!(
+                    "Failed to process HTTP request. Error = {error:?}",
+                )));
+            }
+        }
+        Err(Error::HttpClient(format!(
+            "Failed to process HTTP request. Status Code = {status_code:?}",
+        )))
     }
 
     async fn post_stream<I: Serialize + Send, O: DeserializeOwned + Send + 'static>(

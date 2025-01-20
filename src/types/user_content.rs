@@ -14,8 +14,20 @@ pub enum UserContent {
 #[serde(rename_all = "snake_case")]
 pub enum UserContentPart {
     Text { text: String },
-    Image { image_url: ImageUrl },
+    ImageUrl { image_url: ImageUrl },
     Audio { input_audio: InputAudio },
+}
+
+impl UserContentPart {
+    pub fn image(image_url: impl Into<ImageUrl>) -> Self {
+        Self::ImageUrl {
+            image_url: image_url.into(),
+        }
+    }
+
+    pub fn text(text: impl Into<String>) -> Self {
+        Self::Text { text: text.into() }
+    }
 }
 
 impl Default for UserContent {
@@ -27,6 +39,18 @@ impl Default for UserContent {
 impl From<&str> for UserContent {
     fn from(value: &str) -> Self {
         Self::Text(value.into())
+    }
+}
+
+impl From<&str> for UserContentPart {
+    fn from(value: &str) -> Self {
+        Self::text(value)
+    }
+}
+
+impl From<String> for UserContentPart {
+    fn from(value: String) -> Self {
+        Self::text(value)
     }
 }
 

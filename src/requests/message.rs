@@ -7,14 +7,14 @@ use crate::{
         ChatCompletionRequestToolMessageBuilder, ChatCompletionRequestUserMessageBuilder,
     },
     error::Error,
-    types::{AssistantContent, Content},
+    types::{AssistantContent, Content, ImageUrl, UserContent, UserContentPart},
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum ChatMessage {
     Developer(MessageContent),
     System(MessageContent),
-    User(MessageContent),
+    User(UserContent),
     Assistant {
         message_content: Option<MessageContent>,
         refusal: Option<String>,
@@ -38,8 +38,23 @@ impl ChatMessage {
         Self::System(message.into())
     }
 
-    pub fn user(message: impl Into<MessageContent>) -> Self {
-        Self::User(message.into())
+    pub fn user(message: impl Into<String>) -> Self {
+        Self::User(UserContent::Text(message.into()))
+    }
+
+    pub fn user_image(image_url: impl Into<ImageUrl>) -> Self {
+        Self::User(UserContent::Array(vec![UserContentPart::image(image_url)]))
+    }
+
+    pub fn user_image_with_text(text: impl Into<String>, image_url: impl Into<ImageUrl>) -> Self {
+        Self::user_parts(vec![
+            UserContentPart::text(text),
+            UserContentPart::image(image_url),
+        ])
+    }
+
+    pub fn user_parts(parts: Vec<UserContentPart>) -> Self {
+        Self::User(UserContent::Array(parts))
     }
 
     pub fn developer(message: impl Into<MessageContent>) -> Self {

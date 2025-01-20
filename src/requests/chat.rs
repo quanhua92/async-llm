@@ -66,26 +66,22 @@ impl ChatRequest {
 /// Chainable setters
 impl ChatRequest {
     pub fn system(mut self, message: impl Into<MessageContent>) -> Self {
-        self.messages.push(ChatMessage::System(message.into()));
+        self.messages.push(ChatMessage::system(message));
         self
     }
 
-    pub fn user(mut self, message: impl Into<MessageContent>) -> Self {
-        self.messages.push(ChatMessage::User(message.into()));
+    pub fn user(mut self, message: impl Into<String>) -> Self {
+        self.messages.push(ChatMessage::user(message));
         self
     }
 
     pub fn developer(mut self, message: impl Into<MessageContent>) -> Self {
-        self.messages.push(ChatMessage::Developer(message.into()));
+        self.messages.push(ChatMessage::developer(message));
         self
     }
 
     pub fn assistant(mut self, message: impl Into<MessageContent>) -> Self {
-        self.messages.push(ChatMessage::Assistant {
-            refusal: None,
-            audio: None,
-            message_content: Some(message.into()),
-        });
+        self.messages.push(ChatMessage::assistant(message));
         self
     }
 
@@ -94,10 +90,7 @@ impl ChatRequest {
         message: impl Into<MessageContent>,
         tool_call_id: impl Into<String>,
     ) -> Self {
-        self.messages.push(ChatMessage::Tool {
-            message_content: message.into(),
-            tool_call_id: tool_call_id.into(),
-        });
+        self.messages.push(ChatMessage::tool(message, tool_call_id));
         self
     }
 

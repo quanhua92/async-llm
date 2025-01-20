@@ -8,7 +8,7 @@ use crate::{
     types::{
         chat_tool::ChatTool, AssistantAudio, AssistantContent, AssistantFunctionCall,
         AssistantToolCall, ChatAudio, ChatFunction, ChatFunctionCall, ChatResponseFormat,
-        ChatToolChoice, Content, PredictionContent, Stop, StreamOptions,
+        ChatToolChoice, Content, PredictionContent, Stop, StreamOptions, UserContent,
     },
 };
 
@@ -249,7 +249,7 @@ pub struct ChatCompletionRequestSystemMessage {
 #[builder(build_fn(error=Error))]
 pub struct ChatCompletionRequestUserMessage {
     /// The contents of the user message.
-    pub content: Content,
+    pub content: UserContent,
 
     /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
     #[serde(skip_serializing_if = "Option::is_none")]

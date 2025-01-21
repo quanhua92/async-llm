@@ -1,3 +1,5 @@
+use secrecy::SecretString;
+
 use crate::{
     chat::Chat,
     completions::Completions,
@@ -24,6 +26,15 @@ impl Client<OpenAIProvider, SimpleHttpClient<OpenAIConfig>> {
     pub fn new() -> Self {
         let provider = OpenAIProvider::default();
         let config = provider.config().clone();
+        Self {
+            provider,
+            http_client: SimpleHttpClient::new(config),
+        }
+    }
+
+    pub fn with_auth(base_url: impl Into<String>, api_key: Option<SecretString>) -> Self {
+        let config = OpenAIConfig::new(base_url, api_key);
+        let provider = OpenAIProvider::new(config.clone());
         Self {
             provider,
             http_client: SimpleHttpClient::new(config),

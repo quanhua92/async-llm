@@ -7,10 +7,12 @@ use crate::{
     completions::{CompletionRequest, CompletionResponse},
     error::Error,
     http::HttpClient,
-    ChatRequest, ChatResponse, ChatResponseStream,
+    request::Requestable,
+    response::Respondable,
 };
 
 pub mod config;
+pub mod json;
 pub mod openai;
 
 pub use config::{Config, OpenAIConfig};
@@ -18,20 +20,23 @@ pub use config::{Config, OpenAIConfig};
 #[async_trait]
 pub trait Provider: Debug + Send + Sync {
     type Config: Config;
+    type ChatRequest: Requestable;
+    type ChatResponse: Respondable;
+    type ChatResponseStream: Respondable;
 
     fn config(&self) -> &Self::Config;
 
     async fn chat(
         &self,
         client: &impl HttpClient,
-        request: ChatRequest,
-    ) -> Result<ChatResponse, Error>;
+        request: Self::ChatRequest,
+    ) -> Result<Self::ChatResponse, Error>;
 
     async fn chat_stream(
         &self,
         client: &impl HttpClient,
-        request: ChatRequest,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatResponseStream, Error>> + Send>>, Error>;
+        request: Self::ChatRequest,
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<Self::ChatResponseStream, Error>> + Send>>, Error>;
 
     async fn completions(
         &self,

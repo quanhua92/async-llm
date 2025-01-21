@@ -12,7 +12,7 @@ use crate::{
     ChatResponse, Client,
 };
 
-use super::ChatMessage;
+use super::{ChatMessage, Requestable};
 
 /// https://platform.openai.com/docs/api-reference/chat/create
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
@@ -255,6 +255,12 @@ impl ChatRequest {
 impl ChatRequest {
     pub fn to_string_pretty(&self) -> Result<String, Error> {
         Ok(serde_json::to_string_pretty(&self)?)
+    }
+}
+
+impl Requestable for ChatRequest {
+    fn stream(&self) -> bool {
+        self.stream.unwrap_or(false)
     }
 }
 

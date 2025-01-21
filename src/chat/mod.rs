@@ -1,10 +1,7 @@
 use std::fmt::Debug;
 use std::pin::Pin;
 
-use crate::{
-    error::Error, http::HttpClient, response::chat::ChatResponseStream, ChatRequest, ChatResponse,
-    Client, Provider,
-};
+use crate::{error::Error, http::HttpClient, request::Requestable, Client, Provider};
 
 use futures::Stream;
 
@@ -13,20 +10,24 @@ pub struct Chat<'c, P: Provider, H: HttpClient> {
     pub(crate) client: &'c Client<P, H>,
 }
 
-impl<'c, P: Provider, H: HttpClient> Chat<'c, P, H> {
+impl<'c, P, H> Chat<'c, P, H>
+where
+    P: Provider,
+    H: HttpClient,
+{
     pub fn new(client: &'c Client<P, H>) -> Self {
         Self { client }
     }
 
-    pub async fn create<T>(&self, request: T) -> Result<ChatResponse, Error>
+    pub async fn create<T>(&self, request: T) -> Result<P::ChatResponse, Error>
     where
-        T: TryInto<ChatRequest>,
+        T: TryInto<P::ChatRequest>,
         T::Error: Debug,
     {
-        let request: ChatRequest = request.try_into().map_err(|e| {
+        let request: P::ChatRequest = request.try_into().map_err(|e| {
             Error::InvalidArgument(format!("Failed to convert to ChatRequest. Error = {e:?}"))
         })?;
-        let stream = request.stream.unwrap_or(false);
+        let stream = request.stream();
         match stream {
             true => Err(Error::InvalidArgument(
                 "When stream is true, use the client.create_stream function instead".into(),
@@ -42,15 +43,15 @@ impl<'c, P: Provider, H: HttpClient> Chat<'c, P, H> {
     pub async fn create_stream<T>(
         &self,
         request: T,
-    ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatResponseStream, Error>> + Send>>, Error>
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<P::ChatResponseStream, Error>> + Send>>, Error>
     where
-        T: TryInto<ChatRequest>,
+        T: TryInto<P::ChatRequest>,
         T::Error: Debug,
     {
-        let request: ChatRequest = request.try_into().map_err(|e| {
+        let request: P::ChatRequest = request.try_into().map_err(|e| {
             Error::InvalidArgument(format!("Failed to convert to ChatRequest. Error = {e:?}"))
         })?;
-        let stream = request.stream.unwrap_or(false);
+        let stream = request.stream();
         match stream {
             false => Err(Error::InvalidArgument(
                 "When stream is false, use the client.create function instead".into(),

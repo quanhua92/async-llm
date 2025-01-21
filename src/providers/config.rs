@@ -36,6 +36,17 @@ pub struct OpenAIConfig {
     pub(crate) beta: Option<String>,
 }
 
+impl OpenAIConfig {
+    pub fn new(base_url: impl Into<String>, api_key: Option<SecretString>) -> Self {
+        Self {
+            base_url: base_url.into(),
+            api_key,
+            beta: Some("assistants=v2".into()),
+            ..Default::default()
+        }
+    }
+}
+
 impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {

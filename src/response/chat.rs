@@ -5,6 +5,8 @@ use crate::{
     Error,
 };
 
+use super::Respondable;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChatResponse {
     /// A unique identifier for the chat completion.
@@ -66,5 +68,17 @@ pub struct ChatResponseStream {
 impl ChatResponse {
     pub fn to_string_pretty(&self) -> Result<String, Error> {
         Ok(serde_json::to_string_pretty(self)?)
+    }
+}
+
+impl Respondable for ChatResponse {
+    fn is_success(&self) -> bool {
+        true
+    }
+}
+
+impl Respondable for ChatResponseStream {
+    fn is_success(&self) -> bool {
+        true
     }
 }

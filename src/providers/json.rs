@@ -1,35 +1,33 @@
+use std::pin::Pin;
+
 use async_trait::async_trait;
 use futures::Stream;
-use std::pin::Pin;
 
 use crate::{
     completions::{CompletionRequest, CompletionResponse},
     error::Error,
     http::HttpClient,
-    ChatRequest, ChatResponse, ChatResponseStream,
 };
 
 use super::{config::OpenAIConfig, Provider};
 
-pub const OPENAI_BASE_URL: &str = "https://api.openai.com/v1";
-
 #[derive(Debug, Clone, Default)]
-pub struct OpenAIProvider {
+pub struct JsonProvider {
     pub(crate) config: OpenAIConfig,
 }
 
-impl OpenAIProvider {
+impl JsonProvider {
     pub fn new(config: OpenAIConfig) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl Provider for OpenAIProvider {
+impl Provider for JsonProvider {
     type Config = OpenAIConfig;
-    type ChatRequest = ChatRequest;
-    type ChatResponse = ChatResponse;
-    type ChatResponseStream = ChatResponseStream;
+    type ChatRequest = serde_json::Value;
+    type ChatResponse = serde_json::Value;
+    type ChatResponseStream = serde_json::Value;
 
     fn config(&self) -> &Self::Config {
         &self.config
@@ -42,7 +40,6 @@ impl Provider for OpenAIProvider {
     ) -> Result<Self::ChatResponse, Error> {
         client.post("/chat/completions", request).await
     }
-
     async fn chat_stream(
         &self,
         client: &impl HttpClient,

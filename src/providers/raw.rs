@@ -12,18 +12,18 @@ use crate::{
 use super::{config::OpenAIConfig, Provider};
 
 #[derive(Debug, Clone, Default)]
-pub struct JsonProvider {
+pub struct RawProvider {
     pub(crate) config: OpenAIConfig,
 }
 
-impl JsonProvider {
+impl RawProvider {
     pub fn new(config: OpenAIConfig) -> Self {
         Self { config }
     }
 }
 
 #[async_trait]
-impl Provider for JsonProvider {
+impl Provider for RawProvider {
     type Config = OpenAIConfig;
     type ChatRequest = serde_json::Value;
     type ChatResponse = serde_json::Value;

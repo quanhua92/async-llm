@@ -12,10 +12,12 @@ use crate::{
 };
 
 pub mod config;
-pub mod json;
 pub mod openai;
+pub mod raw;
 
 pub use config::{Config, OpenAIConfig};
+pub use openai::OpenAIProvider;
+pub use raw::RawProvider;
 
 #[async_trait]
 pub trait Provider: Debug + Send + Sync {

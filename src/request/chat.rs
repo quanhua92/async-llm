@@ -1,5 +1,6 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, pin::Pin};
 
+use futures::Stream;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -9,7 +10,7 @@ use crate::{
         ChatToolChoice, Content, Modalities, PredictionContent, ReasoningEffort, ServiceTier, Stop,
         StreamOptions,
     },
-    ChatResponse, Client,
+    ChatResponse, ChatResponseStream, Client, Printable,
 };
 
 use super::{ChatMessage, Requestable};
@@ -202,6 +203,11 @@ impl ChatRequest {
     pub async fn send(self) -> Result<ChatResponse, Error> {
         Ok(Client::new().chat().create(self).await?)
     }
+    pub async fn send_stream(
+        self,
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatResponseStream, Error>> + Send>>, Error> {
+        Ok(Client::new().chat().create_stream(self).await?)
+    }
 }
 
 /// Chainable setters
@@ -261,6 +267,12 @@ impl ChatRequest {
 impl Requestable for ChatRequest {
     fn stream(&self) -> bool {
         self.stream.unwrap_or(false)
+    }
+}
+
+impl Printable for ChatRequest {
+    fn to_string_pretty(&self) -> Result<String, Error> {
+        Ok(serde_json::to_string_pretty(self)?)
     }
 }
 

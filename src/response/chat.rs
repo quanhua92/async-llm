@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     types::{ChatChoice, CompletionUsage, CompletionUsageStream},
-    Error,
+    Error, Printable,
 };
 
 use super::Respondable;
@@ -65,20 +65,26 @@ pub struct ChatResponseStream {
     pub usage: Option<CompletionUsageStream>,
 }
 
-impl ChatResponse {
-    pub fn to_string_pretty(&self) -> Result<String, Error> {
-        Ok(serde_json::to_string_pretty(self)?)
-    }
-}
-
 impl Respondable for ChatResponse {
     fn is_success(&self) -> bool {
         true
     }
 }
 
+impl Printable for ChatResponse {
+    fn to_string_pretty(&self) -> Result<String, Error> {
+        Ok(serde_json::to_string_pretty(self)?)
+    }
+}
+
 impl Respondable for ChatResponseStream {
     fn is_success(&self) -> bool {
         true
+    }
+}
+
+impl Printable for ChatResponseStream {
+    fn to_string_pretty(&self) -> Result<String, Error> {
+        Ok(serde_json::to_string_pretty(self)?)
     }
 }

@@ -1,16 +1,17 @@
 use async_llm::{
     init_tracing,
     types::{ChatResponseFormat, ChatToolFunction, JsonSchema},
-    ChatMessage, ChatRequest, Error,
+    ChatMessage, ChatRequest, Error, Printable,
 };
 use serde_json::json;
+use tokio_stream::StreamExt;
 
 mod utils;
 
 #[allow(unused)]
 async fn example_basic() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![ChatMessage::system("You are a helpful assistant")],
     )
     .user("1 + 1 = ");
@@ -23,9 +24,34 @@ async fn example_basic() -> Result<(), Error> {
 }
 
 #[allow(unused)]
+async fn example_basic_stream() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "gpt-4o-mini",
+        vec![ChatMessage::system("You are a helpful assistant")],
+    )
+    .user("1 + 1 = ")
+    .stream();
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let mut response = request.send_stream().await?;
+    while let Some(result) = response.next().await {
+        match result {
+            Ok(response) => {
+                tracing::info!("response: \n{}", response.to_string_pretty()?);
+            }
+            Err(e) => {
+                tracing::error!("error = \n {e}");
+            }
+        }
+    }
+
+    Ok(())
+}
+
+#[allow(unused)]
 async fn example_assistant_prefill() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user("Who are you?"),
@@ -43,7 +69,7 @@ async fn example_assistant_prefill() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_structured_outputs_json_object() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user(
@@ -67,7 +93,7 @@ async fn example_structured_outputs_json_object() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_structured_outputs_json_schema() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user(r#"What's the weather like in Vietnam?"#),
@@ -103,7 +129,7 @@ async fn example_structured_outputs_json_schema() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_tool_calls() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user(r#"What's the weather like in Vietnam?"#),
@@ -143,7 +169,7 @@ async fn example_tool_calls() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_image_url() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user_image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"),
@@ -162,7 +188,7 @@ async fn example_image_url() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_image_base64() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "openai/gpt-4o-mini",
+        "gpt-4o-mini",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user_image_with_text("What's in this image?", utils::BASE64_EXAMPLE_IMAGE),
@@ -183,6 +209,7 @@ async fn main() -> Result<(), Error> {
     init_tracing();
 
     example_basic().await?;
+    // example_basic_stream().await?;
 
     // Assitant Prefill
     // example_assistant_prefill().await?;

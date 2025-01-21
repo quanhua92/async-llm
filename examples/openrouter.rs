@@ -1,9 +1,10 @@
 use async_llm::{
     init_tracing,
     types::{ChatResponseFormat, ChatToolFunction, JsonSchema},
-    ChatMessage, ChatRequest, Error,
+    ChatMessage, ChatRequest, Error, Printable,
 };
 use serde_json::json;
+use tokio_stream::StreamExt;
 use utils::BASE64_EXAMPLE_IMAGE;
 
 mod utils;
@@ -20,6 +21,32 @@ async fn example_basic() -> Result<(), Error> {
 
     let response = request.send().await?;
     tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
+
+#[allow(unused)]
+async fn example_basic_stream() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        // "meta-llama/llama-3.2-3b-instruct:free",
+        "mistralai/mistral-7b-instruct:free",
+        vec![ChatMessage::system("You are a helpful assistant")],
+    )
+    .user("1 + 1 = ")
+    .stream();
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let mut response = request.send_stream().await?;
+    while let Some(result) = response.next().await {
+        match result {
+            Ok(response) => {
+                tracing::info!("response: \n{}", response.to_string_pretty()?);
+            }
+            Err(e) => {
+                tracing::error!("error = \n {e}");
+            }
+        }
+    }
 
     Ok(())
 }
@@ -195,6 +222,7 @@ async fn main() -> Result<(), Error> {
     init_tracing();
 
     example_basic().await?;
+    // example_basic_stream().await?;
 
     // Assitant Prefill
     // example_assistant_prefill().await?;

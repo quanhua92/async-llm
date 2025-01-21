@@ -4,10 +4,10 @@ use async_trait::async_trait;
 use futures::Stream;
 
 use crate::{
-    chat::{ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseStream},
     completions::{CompletionRequest, CompletionResponse},
     error::Error,
     http::HttpClient,
+    ChatRequest, ChatResponse, ChatResponseStream,
 };
 
 pub mod config;
@@ -24,17 +24,14 @@ pub trait Provider: Debug + Send + Sync {
     async fn chat(
         &self,
         client: &impl HttpClient,
-        request: ChatCompletionRequest,
-    ) -> Result<ChatCompletionResponse, Error>;
+        request: ChatRequest,
+    ) -> Result<ChatResponse, Error>;
 
     async fn chat_stream(
         &self,
         client: &impl HttpClient,
-        request: ChatCompletionRequest,
-    ) -> Result<
-        Pin<Box<dyn Stream<Item = Result<ChatCompletionResponseStream, Error>> + Send>>,
-        Error,
-    >;
+        request: ChatRequest,
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatResponseStream, Error>> + Send>>, Error>;
 
     async fn completions(
         &self,

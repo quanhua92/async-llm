@@ -1,91 +1,203 @@
 use async_llm::{
-    chat::{
-        ChatCompletionRequest, ChatCompletionRequestDeveloperMessageBuilder,
-        ChatCompletionRequestUserMessageBuilder,
-    },
-    client::Client,
-    completions::CompletionRequest,
-    error::Error,
-    utils::init_tracing,
+    init_tracing,
+    types::{ChatResponseFormat, ChatToolFunction, JsonSchema},
+    ChatMessage, ChatRequest, Error,
 };
-use tokio_stream::StreamExt;
+use serde_json::json;
+
+mod utils;
 
 #[allow(unused)]
-async fn create_completion() {
-    let client = Client::new();
-    let request = CompletionRequest::builder()
-        .model("gpt-3.5-turbo-instruct")
-        .prompt("who are you?")
-        .build()
-        .unwrap();
-    tracing::debug!("request: {request:#?}");
-    let response = client.completions().create(request).await.unwrap();
-    tracing::debug!("response: {response:#?}");
-}
+async fn example_basic() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![ChatMessage::system("You are a helpful assistant")],
+    )
+    .user("1 + 1 = ");
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
 
-#[allow(unused)]
-async fn create_chat_completion() -> Result<(), Error> {
-    let client = Client::new();
-    let request = ChatCompletionRequest::builder()
-        // .model("gpt-3.5-turbo-instruct")
-        // .model("qwen/qwen-2-7b-instruct:free")
-        .model("meta-llama/llama-3.2-3b-instruct:free")
-        .messages([
-            ChatCompletionRequestDeveloperMessageBuilder::default()
-                .content("You are a helpful assistant.")
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageBuilder::default()
-                .content("1 + 1 =")
-                .build()?
-                .into(),
-        ])
-        .build()
-        .unwrap();
-    tracing::debug!("request: {request:#?}");
-    let response = client.chat().create(request).await.unwrap();
-    tracing::debug!("response: {response:#?}");
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
     Ok(())
 }
 
-async fn create_chat_completion_stream() -> Result<(), Error> {
-    let client = Client::new();
-    let request = ChatCompletionRequest::builder()
-        // .model("gpt-3.5-turbo-instruct")
-        // .model("qwen/qwen-2-7b-instruct:free")
-        .model("meta-llama/llama-3.2-3b-instruct:free")
-        .stream(true)
-        .messages([
-            ChatCompletionRequestDeveloperMessageBuilder::default()
-                .content("You are a helpful assistant.")
-                .build()?
-                .into(),
-            ChatCompletionRequestUserMessageBuilder::default()
-                .content("1 + 1 =")
-                .build()?
-                .into(),
-        ])
-        .build()
-        .unwrap();
-    tracing::debug!("request: {request:#?}");
-    let mut stream = client.chat().create_stream(request).await.unwrap();
-    while let Some(result) = stream.next().await {
-        match result {
-            Ok(response) => {
-                tracing::info!("{:#?}", response);
-            }
-            Err(err) => {
-                tracing::info!("error: {err}");
-            }
-        }
-    }
+#[allow(unused)]
+async fn example_assistant_prefill() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+            ChatMessage::assistant("I'm not sure, but my best guess is"),
+        ],
+    );
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
     Ok(())
 }
+
+#[allow(unused)]
+async fn example_structured_outputs_json_object() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user(
+                r#"What's the weather like in Vietnam? Reply in json as following:
+                {
+                    "temperature": "Temperature in Celsius",
+                    "location": "City or location name"
+                }"#,
+            ),
+        ],
+    )
+    .response_format(ChatResponseFormat::JsonObject);
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
+
+#[allow(unused)]
+async fn example_structured_outputs_json_schema() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user(r#"What's the weather like in Vietnam?"#),
+        ],
+    )
+    .response_format(JsonSchema::new("weather").strict(true).schema(json!({
+      "type": "object",
+      "properties": {
+          "location": {
+              "type": "string",
+              "description": "City or location name"
+          },
+          "temperature": {
+              "type": "number",
+              "description": "Temperature in Celsius"
+          },
+          "conditions": {
+              "type": "string",
+              "description": "Weather conditions description"
+          }
+      },
+      "required": ["location", "temperature", "conditions"],
+      "additionalProperties": false
+    })));
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
+
+#[allow(unused)]
+async fn example_tool_calls() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user(r#"What's the weather like in Vietnam?"#),
+        ],
+    )
+    .tools(vec![ChatToolFunction::new("get_current_weather")
+        .strict(true)
+        .description("Get the current weather in a given location")
+        .parameters(json!({
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "The city and state, e.g. San Francisco, CA"
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "celsius",
+                "fahrenheit"
+              ]
+            }
+          },
+          "required": [
+            "location"
+          ],
+          "additionalProperties": false
+        }))]);
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
+
+#[allow(unused)]
+async fn example_image_url() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user_image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"),
+            ChatMessage::user("What's in this image?"),
+        ],
+    );
+
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
+
+#[allow(unused)]
+async fn example_image_base64() -> Result<(), Error> {
+    let request = ChatRequest::new(
+        "openai/gpt-4o-mini",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user_image_with_text("What's in this image?", utils::BASE64_EXAMPLE_IMAGE),
+        ],
+    );
+
+    tracing::info!("request: \n{}", request.to_string_pretty()?);
+
+    let response = request.send().await?;
+    tracing::info!("response: \n{}", response.to_string_pretty()?);
+
+    Ok(())
+}
+
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<(), Error> {
     dotenvy::dotenv().ok();
     init_tracing();
-    // create_completion().await;
-    // create_chat_completion().await.unwrap();
-    create_chat_completion_stream().await.unwrap();
+
+    example_basic().await?;
+
+    // Assitant Prefill
+    // example_assistant_prefill().await?;
+
+    // Images & Multimodel: image_url
+    // example_image_url().await?;
+    // Images & Multimodel: base64 image
+    // example_image_base64().await?;
+
+    // Tool Calls
+    // example_tool_calls().await?;
+
+    // Structured outputs
+    // example_structured_outputs_json_object().await?;
+    // example_structured_outputs_json_schema().await?;
+
+    Ok(())
 }

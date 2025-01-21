@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ChatCompletionResponse {
+pub struct ChatResponse {
     /// A unique identifier for the chat completion.
     pub id: Option<String>,
 
@@ -35,7 +35,7 @@ pub struct ChatCompletionResponse {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-pub struct ChatCompletionResponseStream {
+pub struct ChatResponseStream {
     /// A unique identifier for the chat completion.
     pub id: Option<String>,
 
@@ -63,7 +63,7 @@ pub struct ChatCompletionResponseStream {
     pub usage: Option<CompletionUsageStream>,
 }
 
-impl ChatCompletionResponse {
+impl ChatResponse {
     pub fn to_string_pretty(&self) -> Result<String, Error> {
         Ok(serde_json::to_string_pretty(self)?)
     }

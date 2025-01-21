@@ -1,14 +1,12 @@
 use std::fmt::Debug;
 use std::pin::Pin;
 
-use crate::{error::Error, http::HttpClient, Client, Provider};
-
-pub mod request;
-pub mod response;
+use crate::{
+    error::Error, http::HttpClient, response::chat::ChatResponseStream, ChatRequest, ChatResponse,
+    Client, Provider,
+};
 
 use futures::Stream;
-pub use request::*;
-pub use response::*;
 
 #[derive(Debug, Clone)]
 pub struct Chat<'c, P: Provider, H: HttpClient> {
@@ -20,15 +18,13 @@ impl<'c, P: Provider, H: HttpClient> Chat<'c, P, H> {
         Self { client }
     }
 
-    pub async fn create<T>(&self, request: T) -> Result<ChatCompletionResponse, Error>
+    pub async fn create<T>(&self, request: T) -> Result<ChatResponse, Error>
     where
-        T: TryInto<ChatCompletionRequest>,
+        T: TryInto<ChatRequest>,
         T::Error: Debug,
     {
-        let request: ChatCompletionRequest = request.try_into().map_err(|e| {
-            Error::InvalidArgument(format!(
-                "Failed to convert to ChatCompletionRequest. Error = {e:?}"
-            ))
+        let request: ChatRequest = request.try_into().map_err(|e| {
+            Error::InvalidArgument(format!("Failed to convert to ChatRequest. Error = {e:?}"))
         })?;
         let stream = request.stream.unwrap_or(false);
         match stream {
@@ -46,18 +42,13 @@ impl<'c, P: Provider, H: HttpClient> Chat<'c, P, H> {
     pub async fn create_stream<T>(
         &self,
         request: T,
-    ) -> Result<
-        Pin<Box<dyn Stream<Item = Result<ChatCompletionResponseStream, Error>> + Send>>,
-        Error,
-    >
+    ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatResponseStream, Error>> + Send>>, Error>
     where
-        T: TryInto<ChatCompletionRequest>,
+        T: TryInto<ChatRequest>,
         T::Error: Debug,
     {
-        let request: ChatCompletionRequest = request.try_into().map_err(|e| {
-            Error::InvalidArgument(format!(
-                "Failed to convert to ChatCompletionRequest. Error = {e:?}"
-            ))
+        let request: ChatRequest = request.try_into().map_err(|e| {
+            Error::InvalidArgument(format!("Failed to convert to ChatRequest. Error = {e:?}"))
         })?;
         let stream = request.stream.unwrap_or(false);
         match stream {

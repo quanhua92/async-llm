@@ -1,44 +1,43 @@
 use std::collections::HashMap;
 
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     error::Error,
     types::{
-        chat_tool::ChatTool, AssistantAudio, AssistantContent, AssistantFunctionCall,
-        AssistantToolCall, ChatAudio, ChatFunction, ChatFunctionCall, ChatResponseFormat,
-        ChatToolChoice, Content, PredictionContent, Stop, StreamOptions, UserContent,
+        AssistantContent, ChatAudio, ChatFunction, ChatFunctionCall, ChatResponseFormat, ChatTool,
+        ChatToolChoice, Content, Modalities, PredictionContent, ReasoningEffort, ServiceTier, Stop,
+        StreamOptions,
     },
+    ChatResponse, Client,
 };
 
+use super::ChatMessage;
+
 /// https://platform.openai.com/docs/api-reference/chat/create
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = Error))]
-pub struct ChatCompletionRequest {
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+pub struct ChatRequest {
     /// A list of messages comprising the conversation so far. Depending on the [model](https://platform.openai.com/docs/models) you use, different message types (modalities) are supported, like [text](https://platform.openai.com/docs/guides/text-generation), [images](https://platform.openai.com/docs/guides/vision), and [audio](https://platform.openai.com/docs/guides/audio).
-    pub messages: Vec<ChatCompletionRequestMessage>,
+    pub(crate) messages: Vec<ChatMessage>,
 
     /// ID of the model to use. See the [model endpoint compatibility](https://platform.openai.com/docs/models#model-endpoint-compatibility) table for details on which models work with the Chat API.
-    pub model: String,
+    pub(crate) model: String,
 
     /// Whether or not to store the output of this chat completion request for use in our [model distillation](https://platform.openai.com/docs/guides/distillation) or [evals](https://platform.openai.com/docs/guides/evals) products.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub store: Option<bool>,
+    pub(crate) store: Option<bool>,
 
     /// Constrains effort on reasoning for [reasoning models](https://platform.openai.com/docs/guides/reasoning). Currently supported values are low, medium, and high. Reducing reasoning effort can result in faster responses and fewer tokens used on reasoning in a response.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reasoning_effort: Option<ReasoningEffort>,
+    pub(crate) reasoning_effort: Option<ReasoningEffort>,
 
     /// Developer-defined tags and values used for filtering completions in the dashboard.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub metadata: Option<serde_json::Value>,
+    pub(crate) metadata: Option<serde_json::Value>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
+    pub(crate) frequency_penalty: Option<f32>, // min: -2.0, max: 2.0, default: 0
 
     /// Modify the likelihood of specified tokens appearing in the completion.
     ///
@@ -46,61 +45,61 @@ pub struct ChatCompletionRequest {
     ///
     /// As an example, you can pass {"50256": -100} to prevent the <|endoftext|> token from being generated.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
+    pub(crate) logit_bias: Option<HashMap<String, serde_json::Value>>, // default: null
 
     /// Whether to return log probabilities of the output tokens or not. If true, returns the log probabilities of each output token returned in the `content` of `message`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub logprobs: Option<bool>,
+    pub(crate) logprobs: Option<bool>,
 
     /// An integer between 0 and 20 specifying the number of most likely tokens to return at each token position, each with an associated log probability. logprobs must be set to true if this parameter is used.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_logprobs: Option<u8>,
+    pub(crate) top_logprobs: Option<u8>,
 
     /// The maximum number of [tokens](https://platform.openai.com/tokenizer) that can be generated in the chat completion. This value can be used to control [costs](https://openai.com/api/pricing/) for text generated via API.
     ///
     /// This value is now deprecated in favor of `max_completion_tokens`, and is not compatible with [o1 series models](https://platform.openai.com/docs/guides/reasoning).
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_tokens: Option<u32>,
+    pub(crate) max_tokens: Option<u32>,
 
     /// An upper bound for the number of tokens that can be generated for a completion, including visible output tokens and [reasoning tokens](https://platform.openai.com/docs/guides/reasoning).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub max_completion_tokens: Option<u32>,
+    pub(crate) max_completion_tokens: Option<u32>,
 
     /// How many chat completion choices to generate for each input message. Note that you will be charged based on the number of generated tokens across all of the choices. Keep n as 1 to minimize costs.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub n: Option<u8>, // min:1, max: 128, default: 1
+    pub(crate) n: Option<u8>, // min:1, max: 128, default: 1
 
     /// Output types that you would like the model to generate for this request. Most models are capable of generating text, which is the default:
     /// ["text"]
     /// The gpt-4o-audio-preview model can also be used to generate audio. To request that this model generate both text and audio responses, you can use:
     /// ["text", "audio"]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub modalities: Option<Vec<Modalities>>,
+    pub(crate) modalities: Option<Vec<Modalities>>,
 
     /// Configuration for a [Predicted Output](https://platform.openai.com/docs/guides/predicted-outputs), which can greatly improve response times when large parts of the model response are known ahead of time. This is most common when you are regenerating a file with only minor changes to most of the content.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub prediction: Option<PredictionContent>,
+    pub(crate) prediction: Option<PredictionContent>,
 
     /// Parameters for audio output. Required when audio output is requested with modalities: ["audio"]. [Learn more](https://platform.openai.com/docs/guides/audio).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub audio: Option<ChatAudio>,
+    pub(crate) audio: Option<ChatAudio>,
 
     /// Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics.
     ///
     /// [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
+    pub(crate) presence_penalty: Option<f32>, // min: -2.0, max: 2.0, default 0
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub response_format: Option<ChatResponseFormat>,
+    pub(crate) response_format: Option<ChatResponseFormat>,
 
     ///  This feature is in Beta.
     /// If specified, our system will make a best effort to sample deterministically, such that repeated requests
     /// with the same `seed` and parameters should return the same result.
     /// Determinism is not guaranteed, and you should refer to the `system_fingerprint` response parameter to monitor changes in the backend.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub seed: Option<i64>,
+    pub(crate) seed: Option<i64>,
 
     /// Specifies the latency tier to use for processing the request. This parameter is relevant for customers subscribed to the scale tier service:
     /// - If set to 'auto', the system will utilize scale tier credits until they are exhausted.
@@ -109,35 +108,35 @@ pub struct ChatCompletionRequest {
     ///
     /// When this parameter is set, the response body will include the `service_tier` utilized.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub service_tier: Option<ServiceTier>,
+    pub(crate) service_tier: Option<ServiceTier>,
 
     /// Up to 4 sequences where the API will stop generating further tokens. The returned text will not contain the stop sequence.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stop: Option<Stop>,
+    pub(crate) stop: Option<Stop>,
 
     /// If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format) as they become available, with the stream terminated by a data: [DONE] message. Example [Python code](https://cookbook.openai.com/examples/how_to_stream_completions).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream: Option<bool>,
+    pub(crate) stream: Option<bool>,
 
     /// Options for streaming response. Only set this when you set stream: true.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub stream_options: Option<StreamOptions>,
+    pub(crate) stream_options: Option<StreamOptions>,
 
     /// What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.
     ///
     /// We generally recommend altering this or top_p but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub temperature: Option<f32>, // min: 0, max: 2, default: 1,
+    pub(crate) temperature: Option<f32>, // min: 0, max: 2, default: 1,
 
     /// An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.
     ///
     /// We generally recommend altering this or temperature but not both.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub top_p: Option<f32>, // min: 0, max: 1, default: 1
+    pub(crate) top_p: Option<f32>, // min: 0, max: 1, default: 1
 
     /// A list of tools the model may call. Currently, only functions are supported as a tool. Use this to provide a list of functions the model may generate JSON inputs for. A max of 128 functions are supported.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tools: Option<Vec<ChatTool>>,
+    pub(crate) tools: Option<Vec<ChatTool>>,
 
     /// Controls which (if any) tool is called by the model.
     /// - `none` means the model will not call any tool and instead generates a message.
@@ -146,15 +145,15 @@ pub struct ChatCompletionRequest {
     /// - Specifying a particular tool via {"type": "function", "function": {"name": "my_function"}} forces the model to call that tool.
     /// `none` is the default when no tools are present. `auto` is the default if tools are present.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tool_choice: Option<ChatToolChoice>,
+    pub(crate) tool_choice: Option<ChatToolChoice>,
 
     /// Whether to enable [parallel function calling](https://platform.openai.com/docs/guides/function-calling/parallel-function-calling) during tool use.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub parallel_tool_calls: Option<bool>,
+    pub(crate) parallel_tool_calls: Option<bool>,
 
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub user: Option<String>,
+    pub(crate) user: Option<String>,
 
     /// Deprecated in favor of `tool_choice`.
     ///
@@ -166,182 +165,115 @@ pub struct ChatCompletionRequest {
     /// `none` is the default when no functions are present. `auto` is the default if functions are present.
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub function_call: Option<ChatFunctionCall>,
+    pub(crate) function_call: Option<ChatFunctionCall>,
 
     /// Deprecated in favor of `tools`.
     ///
     /// A list of functions the model may generate JSON inputs for.
     #[deprecated]
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub functions: Option<Vec<ChatFunction>>,
+    pub(crate) functions: Option<Vec<ChatFunction>>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(tag = "role")]
-#[serde(rename_all = "lowercase")]
-pub enum ChatCompletionRequestMessage {
-    Developer(ChatCompletionRequestDeveloperMessage),
-    System(ChatCompletionRequestSystemMessage),
-    User(ChatCompletionRequestUserMessage),
-    Assistant(ChatCompletionRequestAssistantMessage),
-    Tool(ChatCompletionRequestToolMessage),
-    Function(ChatCompletionRequestFunctionMessage),
-}
+impl ChatRequest {
+    pub fn new(model: impl Into<String>, messages: Vec<ChatMessage>) -> Self {
+        Self {
+            messages,
+            model: model.into(),
+            ..Default::default()
+        }
+    }
 
-/// Developer-provided instructions that the model should follow, regardless of messages sent by the user. With o1 models and newer, developer messages replace the previous system messages.
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error=Error))]
-pub struct ChatCompletionRequestDeveloperMessage {
-    /// The contents of the developer message.
-    pub content: Content,
+    pub fn from_system(message: impl Into<Content>) -> Self {
+        Self {
+            messages: vec![ChatMessage::system(message.into())],
+            ..Default::default()
+        }
+    }
 
-    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
+    pub fn from_model(model: impl Into<String>) -> Self {
+        Self::new(model, vec![])
+    }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "snake_case")]
-#[serde(untagged)]
-pub enum ServiceTier {
-    Auto,
-    Default,
-}
+    pub fn iter_messages(&self) -> impl Iterator<Item = &ChatMessage> {
+        self.messages.iter()
+    }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "snake_case")]
-#[serde(untagged)]
-pub enum Modalities {
-    Text,
-    Audio,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "snake_case")]
-#[serde(untagged)]
-pub enum ReasoningEffort {
-    Low,
-    #[default]
-    Medium,
-    High,
-}
-
-/// Developer-provided instructions that the model should follow, regardless of messages sent by the user. With o1 models and newer, use developer messages for this purpose instead.
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error=Error))]
-pub struct ChatCompletionRequestSystemMessage {
-    /// The contents of the system message.
-    pub content: Content,
-
-    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
-
-/// Messages sent by an end user, containing prompts or additional context information.
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error=Error))]
-pub struct ChatCompletionRequestUserMessage {
-    /// The contents of the user message.
-    pub content: UserContent,
-
-    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-}
-
-/// Messages sent by the model in response to user messages.
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error=Error))]
-pub struct ChatCompletionRequestAssistantMessage {
-    /// The contents of the assistant message. Required unless `tool_calls` or `function_call` is specified.
-    pub content: Option<AssistantContent>,
-
-    /// The refusal message by the assistant.
-    pub refusal: Option<String>,
-
-    /// An optional name for the participant. Provides the model information to differentiate between participants of the same role.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
-
-    /// Data about a previous audio response from the model. [Learn more](https://platform.openai.com/docs/guides/audio).
-    pub audio: Option<AssistantAudio>,
-
-    /// The tool calls generated by the model, such as function calls.
-    pub tool_calls: Option<Vec<AssistantToolCall>>,
-
-    /// Deprecated and replaced by tool_calls. The name and arguments of a function that should be called, as generated by the model.
-    #[deprecated]
-    pub function_call: Option<AssistantFunctionCall>,
-}
-
-/// Tool message
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error=Error))]
-pub struct ChatCompletionRequestToolMessage {
-    /// The contents of the tool message.
-    pub content: Content,
-
-    /// Tool call that this message is responding to.
-    pub tool_call_id: String,
-}
-
-/// Deprecated - Function message
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error=Error))]
-pub struct ChatCompletionRequestFunctionMessage {
-    /// The contents of the function message.
-    pub content: Option<String>,
-
-    /// The name of the function to call.
-    pub name: String,
-}
-
-impl ChatCompletionRequest {
-    pub fn builder() -> ChatCompletionRequestBuilder {
-        ChatCompletionRequestBuilder::default()
+    pub async fn send(self) -> Result<ChatResponse, Error> {
+        Ok(Client::new().chat().create(self).await?)
     }
 }
 
-impl From<ChatCompletionRequestDeveloperMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestDeveloperMessage) -> Self {
-        Self::Developer(value)
+/// Chainable setters
+impl ChatRequest {
+    pub fn system(mut self, message: impl Into<Content>) -> Self {
+        self.messages.push(ChatMessage::system(message));
+        self
+    }
+
+    pub fn user(mut self, message: impl Into<String>) -> Self {
+        self.messages.push(ChatMessage::user(message));
+        self
+    }
+
+    pub fn developer(mut self, message: impl Into<Content>) -> Self {
+        self.messages.push(ChatMessage::developer(message));
+        self
+    }
+
+    pub fn assistant(mut self, message: impl Into<AssistantContent>) -> Self {
+        self.messages.push(ChatMessage::assistant(message));
+        self
+    }
+
+    pub fn tool(mut self, message: impl Into<Content>, tool_call_id: impl Into<String>) -> Self {
+        self.messages.push(ChatMessage::tool(message, tool_call_id));
+        self
+    }
+
+    pub fn model(mut self, model: impl Into<String>) -> Self {
+        self.model = model.into();
+        self
+    }
+
+    pub fn stream(mut self) -> Self {
+        self.stream = Some(true);
+        self
+    }
+
+    pub fn tools(mut self, tools: Vec<impl Into<ChatTool>>) -> Self {
+        self.tools = Some(tools.into_iter().map(Into::into).collect::<Vec<ChatTool>>());
+        self
+    }
+
+    pub fn response_format(mut self, response_format: impl Into<ChatResponseFormat>) -> Self {
+        self.response_format = Some(response_format.into());
+        self
     }
 }
-impl From<ChatCompletionRequestSystemMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestSystemMessage) -> Self {
-        Self::System(value)
+
+impl ChatRequest {
+    pub fn to_string_pretty(&self) -> Result<String, Error> {
+        Ok(serde_json::to_string_pretty(&self)?)
     }
 }
-impl From<ChatCompletionRequestUserMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestUserMessage) -> Self {
-        Self::User(value)
-    }
-}
-impl From<ChatCompletionRequestAssistantMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestAssistantMessage) -> Self {
-        Self::Assistant(value)
-    }
-}
-impl From<ChatCompletionRequestToolMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestToolMessage) -> Self {
-        Self::Tool(value)
-    }
-}
-impl From<ChatCompletionRequestFunctionMessage> for ChatCompletionRequestMessage {
-    fn from(value: ChatCompletionRequestFunctionMessage) -> Self {
-        Self::Function(value)
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn chat_request_works() {
+        let request = ChatRequest::new(
+            "gpt-4o-mini",
+            vec![
+                ChatMessage::system("You are a helpful assistant"),
+                ChatMessage::user("Who are you?"),
+            ],
+        )
+        .user("1 + 1 =");
+
+        assert!(request.to_string_pretty().is_ok());
     }
 }

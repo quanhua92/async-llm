@@ -80,15 +80,15 @@ We are actively working to address these issues. If you encounter any problems o
 
 ## TODO
 
-- [ ]: Add tests
-- [ ]: Gemini integration
-- [ ]: Ollama integration
-- [ ]: Anthropic integration
-- [ ]: Better error handling
-- [ ]: Examples for custom Provider and HTTPClient
-- [ ]: OpenAI Embedding API
-- [ ]: Better HTTP Client with `backon`
-- [ ]: Better documentation
+- [ ] Add tests
+- [ ] Gemini integration
+- [ ] Ollama integration
+- [ ] Anthropic integration
+- [ ] Better error handling
+- [ ] Examples for custom Provider and HTTPClient
+- [ ] OpenAI Embedding API
+- [ ] Better HTTP Client with `backon`
+- [ ] Better documentation
 
 ## Development
 

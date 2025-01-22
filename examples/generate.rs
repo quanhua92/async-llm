@@ -24,6 +24,7 @@ async fn main() -> Result<(), Error> {
 
     let openai_client = create_client("OPENAI_BASE_URL", "OPENAI_API_KEY");
     let gemini_client = create_client("GEMINI_BASE_URL", "GEMINI_API_KEY");
+    let together_client = create_client("TOGETHER_BASE_URL", "TOGETHER_API_KEY");
     let openrouter_client = create_client("OPENROUTER_BASE_URL", "OPENROUTER_API_KEY");
 
     // generate(
@@ -34,6 +35,15 @@ async fn main() -> Result<(), Error> {
     //     "who are you?",
     // )
     // .await?;
+
+    generate(
+        &together_client,
+        "together",
+        "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+        "who_are_you",
+        "who are you?",
+    )
+    .await?;
 
     generate(
         &openai_client,

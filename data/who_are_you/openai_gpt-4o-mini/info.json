@@ -1,0 +1,5 @@
+{
+  "model_name": "gpt-4o-mini",
+  "provider_name": "openai",
+  "test_name": "who_are_you"
+}

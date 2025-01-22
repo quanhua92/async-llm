@@ -1,0 +1,25 @@
+{
+  "choices": [
+    {
+      "finish_reason": "eos",
+      "index": 0,
+      "logprobs": null,
+      "message": {
+        "content": "I'm an artificial intelligence model known as Llama. Llama stands for \"Large Language Model Meta AI.\"",
+        "role": "assistant",
+        "tool_calls": []
+      },
+      "seed": 11092808193753154000
+    }
+  ],
+  "created": 1737538334,
+  "id": "905e891e8c96fd2a",
+  "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
+  "object": "chat.completion",
+  "prompt": [],
+  "usage": {
+    "completion_tokens": 23,
+    "prompt_tokens": 39,
+    "total_tokens": 62
+  }
+}

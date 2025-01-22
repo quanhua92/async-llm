@@ -1,0 +1,9 @@
+{
+  "messages": [
+    {
+      "content": "who are you?",
+      "role": "user"
+    }
+  ],
+  "model": "mistralai/mistral-7b-instruct:free"
+}

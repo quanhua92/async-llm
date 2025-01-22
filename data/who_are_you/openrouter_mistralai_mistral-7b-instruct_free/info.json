@@ -1,0 +1,5 @@
+{
+  "model_name": "mistralai/mistral-7b-instruct:free",
+  "provider_name": "openrouter",
+  "test_name": "who_are_you"
+}

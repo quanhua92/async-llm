@@ -11,6 +11,9 @@ build:
 generate:
     cargo run --example generate
 
+changelog:
+    git cliff -o CHANGELOG.md
+
 run example="$DEFAULT_EXAMPLE":
     cargo run --example {{example}}
 

@@ -16,21 +16,13 @@ While some crates focus only on OpenAI or attempt a one-size-fits-all approach, 
 
 With `async-llm`, you can seamlessly work with multiple OpenAI-compatible APIs while maintaining a clean and consistent codebase.
 
-## Installation
-
-Add `async-llm` to your `Cargo.toml`:
-
-```toml
-[dependencies]
-async-llm = "0.1.0"
-```
-
 ## Examples
 
 | Name | Description |
 |------|-------------|
 | [`openai`](examples/openai.rs) | OpenAI example |
 | [`openrouter`](examples/openrouter.rs) | OpenRouter example |
+| [`ollama`](examples/ollama.rs) | Ollama example |
 
 ## Usage
 
@@ -77,6 +69,26 @@ async fn example_basic_stream() -> Result<(), Error> {
     Ok(())
 }
 ```
+
+## Known Issues
+
+- **Ollama**: Streaming with the Chat Completions API returns `null` messages intermittently. This is under investigation.
+- **Gemini**: Integration with the Gemini OpenAI-compatible API is currently non-functional. We are exploring solutions to resolve this.
+- **Anthropic**: Anthropic requires a custom provider implementation as it does not expose a /chat/completions API directly. This is currently a work-in-progress.
+
+We are actively working to address these issues. If you encounter any problems or have suggestions, please feel free to open an issue or contribute a fix! 🛠️
+
+## TODO
+
+- [ ]: Add tests
+- [ ]: Gemini integration
+- [ ]: Ollama integration
+- [ ]: Anthropic integration
+- [ ]: Better error handling
+- [ ]: Examples for custom Provider and HTTPClient
+- [ ]: OpenAI Embedding API
+- [ ]: Better HTTP Client with `backon`
+- [ ]: Better documentation
 
 ## Development
 

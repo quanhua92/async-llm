@@ -22,7 +22,7 @@ Add `async-llm` to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-async-llm = "0.0.1"
+async-llm = "0.1.0"
 ```
 
 ## Examples

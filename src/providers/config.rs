@@ -1,5 +1,5 @@
 use derive_builder::Builder;
-use reqwest::header::{HeaderMap, AUTHORIZATION};
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use secrecy::{ExposeSecret, SecretString};
 use std::fmt::Debug;
 
@@ -36,11 +36,16 @@ pub struct OpenAIConfig {
     pub(crate) beta: Option<String>,
 }
 
+fn sanitize_base_url(input: impl Into<String>) -> String {
+    let input: String = input.into();
+    input.trim_end_matches(|c| c == '/' || c == ' ').to_string()
+}
+
 impl OpenAIConfig {
     pub fn new(base_url: impl Into<String>, api_key: Option<SecretString>) -> Self {
         Self {
-            base_url: base_url.into(),
-            api_key,
+            base_url: sanitize_base_url(base_url),
+            api_key: api_key.into(),
             beta: Some("assistants=v2".into()),
             ..Default::default()
         }
@@ -50,8 +55,9 @@ impl OpenAIConfig {
 impl Default for OpenAIConfig {
     fn default() -> Self {
         Self {
-            base_url: std::env::var("OPENAI_BASE_URL")
-                .unwrap_or_else(|_| OPENAI_BASE_URL.to_string()),
+            base_url: sanitize_base_url(
+                std::env::var("OPENAI_BASE_URL").unwrap_or_else(|_| OPENAI_BASE_URL.to_string()),
+            ),
             api_key: std::env::var("OPENAI_API_KEY").map(|v| v.into()).ok(),
             org_id: Default::default(),
             project_id: Default::default(),
@@ -63,6 +69,8 @@ impl Default for OpenAIConfig {
 impl Config for OpenAIConfig {
     fn headers(&self) -> Result<reqwest::header::HeaderMap, Error> {
         let mut headers = HeaderMap::new();
+
+        headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
         if let Some(api_key) = &self.api_key {
             let bearer = format!("Bearer {}", api_key.expose_secret());
@@ -105,7 +113,7 @@ impl Config for OpenAIConfig {
             headers.insert(
                 OPENAI_BETA,
                 beta.parse().map_err(|e| {
-                    Error::InvalidConfig(format!("Failed to convert beta to heaer. {:?}", e))
+                    Error::InvalidConfig(format!("Failed to convert beta to header. {:?}", e))
                 })?,
             );
         }

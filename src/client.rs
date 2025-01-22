@@ -33,6 +33,14 @@ impl<P: Provider, H: HttpClient> Client<P, H> {
             http_client,
         }
     }
+
+    pub fn provider(&self) -> &P {
+        &self.provider
+    }
+
+    pub fn http_client(&self) -> &H {
+        &self.http_client
+    }
 }
 
 impl Client<OpenAIProvider, DefaultHttpClient<OpenAIConfig>> {
@@ -59,6 +67,15 @@ impl Client<RawProvider, DefaultHttpClient<OpenAIConfig>> {
     pub fn raw() -> Self {
         let provider = RawProvider::default();
         let config = provider.config().clone();
+        Self {
+            provider,
+            http_client: DefaultHttpClient::new(config),
+        }
+    }
+
+    pub fn with_auth_raw(base_url: impl Into<String>, api_key: Option<SecretString>) -> Self {
+        let config = OpenAIConfig::new(base_url, api_key);
+        let provider = RawProvider::new(config.clone());
         Self {
             provider,
             http_client: DefaultHttpClient::new(config),

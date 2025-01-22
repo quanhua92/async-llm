@@ -4,7 +4,7 @@ use futures::Stream;
 use reqwest_eventsource::RequestBuilderExt;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{error::Error, providers::Config};
+use crate::{error::Error, providers::Config, Printable};
 
 use super::{stream::stream, HttpClient};
 
@@ -24,17 +24,22 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
         let url = self.config.url(path);
         let headers = self.config.headers()?;
         let query = self.config.query();
+        let request = serde_json::to_value(request)?;
+        tracing::debug!("url: {}", url);
+        tracing::debug!("query: {:?}", query);
+        tracing::debug!("headers:\n{:?}", headers);
+        tracing::debug!("request:\n{}", request.to_string_pretty()?);
         let resp = self
             .client
-            .post(url)
+            .post(&url)
             .headers(headers)
             .query(&query)
-            .json(&request)
+            .body::<String>(request.to_string_pretty()?)
             .send()
             .await
             .map_err(|e| {
                 Error::HttpClient(format!(
-                    "Failed to send HTTP request. Error = {}",
+                    "Failed to send HTTP request. Error = {}, url = {url:?}",
                     e.to_string()
                 ))
             })?;
@@ -42,7 +47,7 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
         if status_code.is_success() {
             let value: serde_json::Value = resp.json().await.map_err(|e| {
                 Error::HttpClient(format!(
-                    "Failed to read JSON from HTTP request. Error = {}",
+                    "Failed to read JSON from HTTP request. Error = {}, url = {url}",
                     e.to_string()
                 ))
             })?;
@@ -54,13 +59,24 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
             }
             if let Some(error) = value.get("error") {
                 return Err(Error::HttpClient(format!(
-                    "Failed to process HTTP request. Error = {error:?}",
+                    "Failed to process HTTP request. Error = {error:?}, url = {url}",
+                )));
+            } else {
+                return Err(Error::HttpClient(format!(
+                    "Failed to process HTTP request. url = {url:?}",
                 )));
             }
-        }
-        Err(Error::HttpClient(format!(
-            "Failed to process HTTP request. Status Code = {status_code:?}",
+        } else {
+            let body = resp.text().await.map_err(|e| {
+                Error::HttpClient(format!(
+                    "Failed to read text from HTTP request. Error = {}, url = {url}",
+                    e.to_string()
+                ))
+            })?;
+            Err(Error::HttpClient(format!(
+            "Failed to process HTTP request. Status Code = {status_code:?}, url = {url} - body = {body}",
         )))
+        }
     }
 
     async fn post_stream<I: Serialize + Send, O: DeserializeOwned + Send + 'static>(
@@ -69,7 +85,7 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
         request: I,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<O, Error>> + Send>>, Error> {
         let url = self.config.url(path);
-        let headers = self.config.headers().unwrap();
+        let headers = self.config.headers()?;
         let query = self.config.query();
         let event_source = self
             .client

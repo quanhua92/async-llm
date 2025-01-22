@@ -4,7 +4,7 @@ use futures::Stream;
 use reqwest_eventsource::RequestBuilderExt;
 use serde::{de::DeserializeOwned, Serialize};
 
-use crate::{error::Error, providers::Config, Printable};
+use crate::{error::Error, providers::Config};
 
 use super::{stream::stream, HttpClient};
 
@@ -24,23 +24,18 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
         let url = self.config.url(path);
         let headers = self.config.headers()?;
         let query = self.config.query();
-        let request = serde_json::to_value(request)?;
-        tracing::debug!("url: {}", url);
-        tracing::debug!("query: {:?}", query);
-        tracing::debug!("headers:\n{:?}", headers);
-        tracing::debug!("request:\n{}", request.to_string_pretty()?);
         let resp = self
             .client
             .post(&url)
             .headers(headers)
             .query(&query)
-            .body::<String>(request.to_string_pretty()?)
+            .json(&request)
             .send()
             .await
             .map_err(|e| {
                 Error::HttpClient(format!(
                     "Failed to send HTTP request. Error = {}, url = {url:?}",
-                    e.to_string()
+                    e
                 ))
             })?;
         let status_code = resp.status();
@@ -48,14 +43,11 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
             let value: serde_json::Value = resp.json().await.map_err(|e| {
                 Error::HttpClient(format!(
                     "Failed to read JSON from HTTP request. Error = {}, url = {url}",
-                    e.to_string()
+                    e
                 ))
             })?;
-            if let Some(_) = value.get("choices") {
-                return Ok(serde_json::from_value(value.clone()).map_err(|e| {
-                    tracing::debug!("value =\n {value:?}");
-                    e
-                })?);
+            if value.get("choices").is_some() {
+                return Ok(serde_json::from_value(value.clone())?);
             }
             if let Some(error) = value.get("error") {
                 return Err(Error::HttpClient(format!(
@@ -70,7 +62,7 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
             let body = resp.text().await.map_err(|e| {
                 Error::HttpClient(format!(
                     "Failed to read text from HTTP request. Error = {}, url = {url}",
-                    e.to_string()
+                    e
                 ))
             })?;
             Err(Error::HttpClient(format!(
@@ -95,10 +87,7 @@ impl<C: Config> HttpClient for SimpleHttpClient<C> {
             .json(&request)
             .eventsource()
             .map_err(|e| {
-                Error::HttpClient(format!(
-                    "Failed to send HTTP request. Error = {}",
-                    e.to_string()
-                ))
+                Error::HttpClient(format!("Failed to send HTTP request. Error = {}", e))
             })?;
         stream(event_source, self.config.stream_done_message()).await
     }

@@ -19,7 +19,7 @@ async-trait = "0.1.85"
 derive_builder = "0.20.2"
 dotenvy = "0.15.7"
 futures = "0.3.31"
-reqwest = { version = "0.12.9", features = ["json", "stream"] }
+reqwest = { version = "0.12.9", default-features = false, features = ["json", "stream", "http2"] }
 reqwest-eventsource = "0.6.0"
 secrecy = "0.10.3"
 serde = { version = "1.0.217", features = ["derive"] }
@@ -28,11 +28,12 @@ thiserror = "2.0.10"
 tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros"] }
 tokio-stream = "0.1.17"
 
-tracing = { version = "0.1.41", optional = true }
-tracing-log = { version = "0.2", optional = true }
-tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"], optional = true }
+tracing = "0.1.41"
+
+[dev-dependencies]
+tracing-log = "0.2"
+tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"]}
 
 [features]
-default = ["use-tracing"]
-use-tracing = ["tracing", "tracing-log", "tracing-subscriber"]
-
+default = ["reqwest/rustls-tls"]
+native-tls = ["reqwest/native-tls"]

@@ -1,4 +1,3 @@
-#[cfg(feature = "tracing")]
 pub fn init_tracing() {
     use tracing_subscriber::{fmt, prelude::*, EnvFilter, Registry};
 

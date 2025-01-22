@@ -1,20 +1,14 @@
-use core::panic;
 use std::{fs, path::PathBuf, str::FromStr};
 
 use async_llm::{
-    client::DefaultHttpClient,
-    http::HttpClient,
-    providers::{Config, OpenAIConfig},
-    utils::init_tracing,
-    ChatMessage, ChatRequest, Client, Error, Printable, Provider, RawProvider,
-};
-use reqwest::{
-    header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE},
-    Proxy,
+    client::DefaultHttpClient, http::HttpClient, providers::OpenAIConfig, ChatMessage, ChatRequest,
+    Client, Error, RawProvider,
 };
 use secrecy::SecretString;
 use serde_json::{json, Value};
-use tokio_stream::StreamExt;
+use utils::tracing::init_tracing;
+
+mod utils;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {

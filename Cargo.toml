@@ -35,5 +35,6 @@ tracing-log = "0.2"
 tracing-subscriber = { version = "0.3", features = ["registry", "env-filter"]}
 
 [features]
-default = ["reqwest/rustls-tls"]
+default = ["rustls-tls"]
 native-tls = ["reqwest/native-tls"]
+rustls-tls = ["reqwest/rustls-tls"]

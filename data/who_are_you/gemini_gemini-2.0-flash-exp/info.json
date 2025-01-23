@@ -1,0 +1,5 @@
+{
+  "model_name": "gemini-2.0-flash-exp",
+  "provider_name": "gemini",
+  "test_name": "who_are_you"
+}

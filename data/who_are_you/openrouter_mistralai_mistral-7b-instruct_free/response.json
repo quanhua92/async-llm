@@ -1,23 +1,25 @@
 {
   "choices": [
     {
+      "finish_reason": "stop",
       "index": 0,
       "logprobs": null,
       "message": {
-        "content": " I am a Large Language Model trained by Mistral AI. I am designed to assist with a wide range of tasks such as answering questions, providing information, and engaging in conversation. I don't have personal experiences or emotions, but I'm here to help you with your questions to the best of my ability. How can I assist you today?",
-        "refusal": "",
+        "content": "I am a Large Language Model trained by Mistral AI. My purpose is to help answer your questions, provide information, and engage in a friendly conversation on a wide variety of topics. I don't have personal experiences or personal opinions, as I am not a human but a model of artificial intelligence. I'm here to learn and assist you! How can I help you today?",
+        "refusal": null,
         "role": "assistant"
-      }
+      },
+      "native_finish_reason": "stop"
     }
   ],
-  "created": 1737538338,
-  "id": "gen-1737538338-YMfB1nMj5DyZFdEEvavp",
+  "created": 1737606055,
+  "id": "gen-1737606055-CAuGtv5b7db48Zp8P2bh",
   "model": "mistralai/mistral-7b-instruct",
   "object": "chat.completion",
-  "provider": "HuggingFace",
+  "provider": "Lepton",
   "usage": {
-    "completion_tokens": 69,
-    "prompt_tokens": 12,
-    "total_tokens": 81
+    "completion_tokens": 79,
+    "prompt_tokens": 9,
+    "total_tokens": 88
   }
 }

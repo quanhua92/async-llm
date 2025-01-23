@@ -1,6 +1,5 @@
 use async_llm::{
-    init_tracing,
-    types::{ChatResponseFormat, ChatToolFunction, JsonSchema},
+    types::{ChatResponseFormat, ChatToolChoice, ChatToolFunction, JsonSchema},
     ChatMessage, ChatRequest, Error, Printable,
 };
 use serde_json::json;
@@ -8,13 +7,17 @@ use tokio_stream::StreamExt;
 
 mod utils;
 
+use utils::tracing::init_tracing;
+
 #[allow(unused)]
 async fn example_basic() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
-        vec![ChatMessage::system("You are a helpful assistant")],
-    )
-    .user("1 + 1 = ");
+        "gemini-2.0-flash-exp",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+        ],
+    );
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
     let response = request.send().await?;
@@ -26,10 +29,12 @@ async fn example_basic() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_basic_stream() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
-        vec![ChatMessage::system("You are a helpful assistant")],
+        "gemini-2.0-flash-exp",
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+        ],
     )
-    .user("1 + 1 = ")
     .stream();
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
@@ -51,7 +56,7 @@ async fn example_basic_stream() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_assistant_prefill() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
+        "gemini-2.0-flash-exp",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user("Who are you?"),
@@ -69,7 +74,7 @@ async fn example_assistant_prefill() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_structured_outputs_json_object() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
+        "gemini-2.0-flash-exp",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user(
@@ -93,7 +98,7 @@ async fn example_structured_outputs_json_object() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_structured_outputs_json_schema() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
+        "gemini-2.0-flash-exp",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user(r#"What's the weather like in Vietnam?"#),
@@ -128,11 +133,13 @@ async fn example_structured_outputs_json_schema() -> Result<(), Error> {
 
 #[allow(unused)]
 async fn example_tool_calls() -> Result<(), Error> {
+    let value = serde_json::to_value(ChatToolChoice::Required).unwrap();
+
     let request = ChatRequest::new(
-        "gpt-4o-mini",
+        "gemini-2.0-flash-exp",
         vec![
             ChatMessage::system("You are a helpful assistant"),
-            ChatMessage::user(r#"What's the weather like in Vietnam?"#),
+            ChatMessage::user(r#"What's the weather like in San Francisco?"#),
         ],
     )
     .tools(vec![ChatToolFunction::new("get_current_weather")
@@ -169,7 +176,7 @@ async fn example_tool_calls() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_image_url() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
+        "gemini-2.0-flash-exp",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user_image("https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg"),
@@ -188,7 +195,7 @@ async fn example_image_url() -> Result<(), Error> {
 #[allow(unused)]
 async fn example_image_base64() -> Result<(), Error> {
     let request = ChatRequest::new(
-        "gpt-4o-mini",
+        "gemini-2.0-flash-exp",
         vec![
             ChatMessage::system("You are a helpful assistant"),
             ChatMessage::user_image_with_text("What's in this image?", utils::BASE64_EXAMPLE_IMAGE),
@@ -210,19 +217,20 @@ async fn main() -> Result<(), Error> {
     std::env::set_var("OPENAI_BASE_URL", std::env::var("GEMINI_BASE_URL").unwrap());
     init_tracing();
 
-    example_basic().await?;
+    // example_basic().await?;
     // example_basic_stream().await?;
 
     // Assitant Prefill
     // example_assistant_prefill().await?;
 
-    // Images & Multimodel: image_url
+    // Images & Multimodel: image_url: Invalid Argument?
     // example_image_url().await?;
+
     // Images & Multimodel: base64 image
     // example_image_base64().await?;
 
     // Tool Calls
-    // example_tool_calls().await?;
+    example_tool_calls().await?;
 
     // Structured outputs
     // example_structured_outputs_json_object().await?;

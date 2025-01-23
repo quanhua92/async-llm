@@ -5,12 +5,12 @@ use crate::error::Error;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
-#[serde(untagged)]
 pub enum ChatToolChoice {
     #[default]
     None,
     Auto,
     Required,
+    #[serde(untagged)]
     Function(ChatToolChoiceNamedOption),
 }
 

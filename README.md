@@ -23,6 +23,7 @@ With `async-llm`, you can seamlessly work with multiple OpenAI-compatible APIs w
 | [`openai`](examples/openai.rs) | OpenAI example |
 | [`openrouter`](examples/openrouter.rs) | OpenRouter example |
 | [`ollama`](examples/ollama.rs) | Ollama example |
+| [`gemini`](examples/gemini.rs) | Gemini example |
 
 ## Usage
 
@@ -72,8 +73,7 @@ async fn example_basic_stream() -> Result<(), Error> {
 
 ## Known Issues
 
-- **Ollama**: Streaming with the Chat Completions API returns `null` messages intermittently. This is under investigation.
-- **Gemini**: Integration with the Gemini OpenAI-compatible API is currently non-functional. We are exploring solutions to resolve this.
+- **Ollama & Gemini Streaming**: Streaming with the Chat Completions API returns `null` messages intermittently. This is under investigation.
 - **Anthropic**: Anthropic requires a custom provider implementation as it does not expose a /chat/completions API directly. This is currently a work-in-progress.
 
 We are actively working to address these issues. If you encounter any problems or have suggestions, please feel free to open an issue or contribute a fix! 🛠️

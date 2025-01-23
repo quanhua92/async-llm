@@ -7,7 +7,6 @@ pub mod providers;
 pub mod request;
 pub mod response;
 pub mod types;
-pub mod utils;
 
 pub use client::Client;
 pub use error::Error;
@@ -15,7 +14,6 @@ pub use providers::{OpenAIProvider, Provider, RawProvider};
 pub use request::{ChatMessage, ChatRequest};
 pub use response::{ChatResponse, ChatResponseStream};
 use serde::Serialize;
-pub use utils::init_tracing;
 
 pub trait Printable: Serialize {
     fn to_string_pretty(&self) -> Result<String, Error>;

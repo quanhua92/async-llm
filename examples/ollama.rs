@@ -1,10 +1,10 @@
 use async_llm::{
-    init_tracing,
     types::{ChatResponseFormat, ChatToolFunction, JsonSchema},
     ChatMessage, ChatRequest, Error, Printable,
 };
 use serde_json::json;
 use tokio_stream::StreamExt;
+use utils::tracing::init_tracing;
 
 mod utils;
 

@@ -12,9 +12,11 @@ use utils::tracing::init_tracing;
 async fn example_basic() -> Result<(), Error> {
     let request = ChatRequest::new(
         "gpt-4o-mini",
-        vec![ChatMessage::system("You are a helpful assistant")],
-    )
-    .user("1 + 1 = ");
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+        ],
+    );
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
     let response = request.send().await?;
@@ -27,9 +29,11 @@ async fn example_basic() -> Result<(), Error> {
 async fn example_basic_stream() -> Result<(), Error> {
     let request = ChatRequest::new(
         "gpt-4o-mini",
-        vec![ChatMessage::system("You are a helpful assistant")],
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+        ],
     )
-    .user("1 + 1 = ")
     .stream();
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 

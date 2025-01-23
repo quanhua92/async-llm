@@ -218,7 +218,7 @@ async fn main() -> Result<(), Error> {
     init_tracing();
 
     // example_basic().await?;
-    // example_basic_stream().await?;
+    example_basic_stream().await?;
 
     // Assitant Prefill
     // example_assistant_prefill().await?;
@@ -230,7 +230,7 @@ async fn main() -> Result<(), Error> {
     // example_image_base64().await?;
 
     // Tool Calls
-    example_tool_calls().await?;
+    // example_tool_calls().await?;
 
     // Structured outputs
     // example_structured_outputs_json_object().await?;

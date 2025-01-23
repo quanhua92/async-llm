@@ -13,7 +13,7 @@ generate:
     cargo run --example generate
 
 changelog:
-    git cliff --bump -o CHANGELOG.md
+    git cliff --current -o CHANGELOG.md
 
 run example="$DEFAULT_EXAMPLE":
     cargo run --example {{example}}

@@ -35,7 +35,7 @@ async fn example_basic_stream() -> Result<(), Error> {
             ChatMessage::user("Who are you?"),
         ],
     )
-    .stream();
+    .with_stream();
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
     let mut response = request.send_stream().await?;
@@ -86,7 +86,7 @@ async fn example_structured_outputs_json_object() -> Result<(), Error> {
             ),
         ],
     )
-    .response_format(ChatResponseFormat::JsonObject);
+    .with_response_format(ChatResponseFormat::JsonObject);
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
     let response = request.send().await?;
@@ -104,7 +104,7 @@ async fn example_structured_outputs_json_schema() -> Result<(), Error> {
             ChatMessage::user(r#"What's the weather like in Vietnam?"#),
         ],
     )
-    .response_format(JsonSchema::new("weather").strict(true).schema(json!({
+    .with_response_format(JsonSchema::new("weather").strict(true).schema(json!({
       "type": "object",
       "properties": {
           "location": {
@@ -142,7 +142,7 @@ async fn example_tool_calls() -> Result<(), Error> {
             ChatMessage::user(r#"What's the weather like in San Francisco?"#),
         ],
     )
-    .tools(vec![ChatToolFunction::new("get_current_weather")
+    .with_tools(vec![ChatToolFunction::new("get_current_weather")
         .strict(true)
         .description("Get the current weather in a given location")
         .parameters(json!({

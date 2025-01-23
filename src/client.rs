@@ -43,6 +43,12 @@ impl<P: Provider, H: HttpClient> Client<P, H> {
     }
 }
 
+impl Default for Client<OpenAIProvider, DefaultHttpClient<OpenAIConfig>> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Client<OpenAIProvider, DefaultHttpClient<OpenAIConfig>> {
     pub fn new() -> Self {
         let provider = OpenAIProvider::default();

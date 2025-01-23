@@ -201,12 +201,12 @@ impl ChatRequest {
     }
 
     pub async fn send(self) -> Result<ChatResponse, Error> {
-        Ok(Client::new().chat().create(self).await?)
+        Client::new().chat().create(self).await
     }
     pub async fn send_stream(
         self,
     ) -> Result<Pin<Box<dyn Stream<Item = Result<ChatResponseStream, Error>> + Send>>, Error> {
-        Ok(Client::new().chat().create_stream(self).await?)
+        Client::new().chat().create_stream(self).await
     }
 }
 
@@ -234,6 +234,11 @@ impl ChatRequest {
 
     pub fn tool(mut self, message: impl Into<Content>, tool_call_id: impl Into<String>) -> Self {
         self.messages.push(ChatMessage::tool(message, tool_call_id));
+        self
+    }
+
+    pub fn tool_choice(mut self, tool_choice: ChatToolChoice) -> Self {
+        self.tool_choice = Some(tool_choice);
         self
     }
 

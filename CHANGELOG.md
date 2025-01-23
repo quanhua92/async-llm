@@ -2,17 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.4 - 2025-01-23
+
+[e6b3976](e6b397661f80e5b133345b65bf3f7852b83a8340)...[0f6e2ed](0f6e2edfaff52d4b44a7a608cafacbf6b1e58c7e)
+
+### Features
+
+- Expose ChatRequest fields and rename Chainable Setters ([d7f19f2](d7f19f29abc415cee7140c13400f4b29d45ad515))
+
+### Miscellaneous Tasks
+
+- Update justfile and README.md ([87181e9](87181e9f5420b491590eba67c2a480fff510122c))
+- Update README.md using method with_stream instead of stream ([02c9f8c](02c9f8cf55cb5db6345c01a47c95ce2e09d94416))
+- Bump version to 0.1.4 ([d4b2984](d4b298469d54b09362de240520dc968e6fa0f051))
+- Add tag to just changelog ([0f6e2ed](0f6e2edfaff52d4b44a7a608cafacbf6b1e58c7e))
+
+### Testing
+
+- Test offline files ([39f72ca](39f72ca53de2ce5d3d412a4811a5d86c2824187d))
+
 ## 0.1.3 - 2025-01-23
+
+[d02d5bf](d02d5bfacc9a48d76c7a818b6e62042c85451d1e)...[e6b3976](e6b397661f80e5b133345b65bf3f7852b83a8340)
 
 ### Bug Fixes
 
-- Chat stream uses incorrect ChatChoice type ([9d161e5](9d161e508bc4cc0e97e3ef2281172586bec94f2b))
+- Chat stream uses incorrect ChatChoice type ([09aafc4](09aafc4aedb641643b16706e538640802f807efb))
 
 ### Miscellaneous Tasks
 
 - Update CHANGELOG.md ([dbeffe5](dbeffe58afede568870119db8ed9f2c1a8fc290e))
-- Update CHANGELOG for v0.1.3 ([5e65c11](5e65c11dd456faf5359d6679737c97acc564f331))
-- Bump version to 0.1.3 ([03e4645](03e4645af9675a0da1264975fc8f428a2ed112d2))
+- Update CHANGELOG for v0.1.3 ([2ef60e2](2ef60e22b26299faa20f4959b743184265728691))
+- Bump version to 0.1.3 ([e6b3976](e6b397661f80e5b133345b65bf3f7852b83a8340))
 
 ## 0.1.2 - 2025-01-23
 

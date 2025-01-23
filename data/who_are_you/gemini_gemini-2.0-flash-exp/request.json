@@ -1,0 +1,9 @@
+{
+  "messages": [
+    {
+      "content": "who are you?",
+      "role": "user"
+    }
+  ],
+  "model": "gemini-2.0-flash-exp"
+}

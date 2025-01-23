@@ -21,14 +21,14 @@ async fn main() -> Result<(), Error> {
     let together_client = create_client("TOGETHER_BASE_URL", "TOGETHER_API_KEY");
     let openrouter_client = create_client("OPENROUTER_BASE_URL", "OPENROUTER_API_KEY");
 
-    // generate(
-    //     &gemini_client,
-    //     "gemini",
-    //     "gemini-2.0-flash-exp",
-    //     "who_are_you",
-    //     "who are you?",
-    // )
-    // .await?;
+    generate(
+        &gemini_client,
+        "gemini",
+        "gemini-2.0-flash-exp",
+        "who_are_you",
+        "who are you?",
+    )
+    .await?;
 
     generate(
         &together_client,

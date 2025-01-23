@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.2 - 2025-01-23
+
+[752a78f](752a78ffc4fafd26ec457f1fe73549ce7d3786cc)...[d02d5bf](d02d5bfacc9a48d76c7a818b6e62042c85451d1e)
+
+### Bug Fixes
+
+- Serialization enum with untagged ([4767021](476702158263f19d16ef09737678c09fda32f72a))
+
+### Documentation
+
+- Update readme ([0588aef](0588aef89d9532e95f135401363b7c05f86e9489))
+
+### Miscellaneous Tasks
+
+- Add CHANGELOG.md ([462a964](462a96498c151f192e461b9382462a783b94b927))
+- Remove use-tracing feature ([d37168a](d37168a53efb6ccc2fee6449df50226ac7720140))
+- Generate gemini test data ([ca40b54](ca40b542979741c78b2151b194582faf3ed2a9c7))
+- Add native-tls and rustls-tls features ([bb5d4bb](bb5d4bbad02d0d9be8430ab5576ad03dc8cd74a4))
+- Bump version to 0.1.2 ([6ad1758](6ad17583743c7a2db978ea4438b500b46fa3690d))
+
 ## 0.1.1 - 2025-01-22
 
 [4da2dae](4da2dae9332d79bf635f87667550f6948a9d8224)...[752a78f](752a78ffc4fafd26ec457f1fe73549ce7d3786cc)

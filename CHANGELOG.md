@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.3 - 2025-01-23
+
+### Bug Fixes
+
+- Chat stream uses incorrect ChatChoice type ([9d161e5](9d161e508bc4cc0e97e3ef2281172586bec94f2b))
+
+### Miscellaneous Tasks
+
+- Update CHANGELOG.md ([dbeffe5](dbeffe58afede568870119db8ed9f2c1a8fc290e))
+- Update CHANGELOG for v0.1.3 ([5e65c11](5e65c11dd456faf5359d6679737c97acc564f331))
+- Bump version to 0.1.3 ([03e4645](03e4645af9675a0da1264975fc8f428a2ed112d2))
+
 ## 0.1.2 - 2025-01-23
 
 [752a78f](752a78ffc4fafd26ec457f1fe73549ce7d3786cc)...[d02d5bf](d02d5bfacc9a48d76c7a818b6e62042c85451d1e)

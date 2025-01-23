@@ -4,6 +4,7 @@ set dotenv-load := true
 
 install:
     cargo install cargo-watch
+    cargo install git-cliff
 
 build:
     cargo build
@@ -19,6 +20,9 @@ run example="$DEFAULT_EXAMPLE":
 
 dev example="$DEFAULT_EXAMPLE":
     RUST_LOG=debug cargo watch -w src -w tests -w examples -s "cargo run --example {{example}}"
+
+trace example="$DEFAULT_EXAMPLE":
+    RUST_LOG=trace cargo watch -w src -w tests -w examples -s "cargo run --example {{example}}"
 
 test:
     cargo watch -d 1 -w src -w tests -w examples -x test

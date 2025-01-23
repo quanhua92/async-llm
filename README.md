@@ -98,12 +98,22 @@ Install `just`
 
 Install additional tools
 ```
-  just init
+  just install
 ```
 
 Start development
 ```
   just dev
+```
+
+Start development with example name
+```
+  just dev ollama
+```
+
+Start development with example name and RUST_LOG=trace
+```
+  just trace ollama
 ```
 
 Run tests

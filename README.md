@@ -52,7 +52,7 @@ async fn example_basic_stream() -> Result<(), Error> {
             ChatMessage::user("Who are you?"),
         ],
     )
-    .stream();
+    .with_stream();
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
     let mut response = request.send_stream().await?;

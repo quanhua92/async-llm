@@ -73,7 +73,6 @@ async fn example_basic_stream() -> Result<(), Error> {
 
 ## Known Issues
 
-- **Ollama & Gemini Streaming**: Streaming with the Chat Completions API returns `null` messages intermittently. This is under investigation.
 - **Anthropic**: Anthropic requires a custom provider implementation as it does not expose a /chat/completions API directly. This is currently a work-in-progress.
 
 We are actively working to address these issues. If you encounter any problems or have suggestions, please feel free to open an issue or contribute a fix! 🛠️

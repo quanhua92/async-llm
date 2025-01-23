@@ -13,9 +13,11 @@ async fn example_basic() -> Result<(), Error> {
     let request = ChatRequest::new(
         // "meta-llama/llama-3.2-3b-instruct:free",
         "mistralai/mistral-7b-instruct:free",
-        vec![ChatMessage::system("You are a helpful assistant")],
-    )
-    .user("1 + 1 = ");
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+        ],
+    );
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
     let response = request.send().await?;
@@ -29,9 +31,11 @@ async fn example_basic_stream() -> Result<(), Error> {
     let request = ChatRequest::new(
         // "meta-llama/llama-3.2-3b-instruct:free",
         "mistralai/mistral-7b-instruct:free",
-        vec![ChatMessage::system("You are a helpful assistant")],
+        vec![
+            ChatMessage::system("You are a helpful assistant"),
+            ChatMessage::user("Who are you?"),
+        ],
     )
-    .user("1 + 1 = ")
     .stream();
     tracing::info!("request: \n{}", request.to_string_pretty()?);
 
@@ -228,8 +232,8 @@ async fn main() -> Result<(), Error> {
     );
     init_tracing();
 
-    example_basic().await?;
-    // example_basic_stream().await?;
+    // example_basic().await?;
+    example_basic_stream().await?;
 
     // Assitant Prefill
     // example_assistant_prefill().await?;

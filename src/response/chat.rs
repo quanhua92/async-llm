@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    types::{ChatChoice, CompletionUsage, CompletionUsageStream},
+    types::{ChatChoice, ChatChoiceStream, CompletionUsage, CompletionUsageStream},
     Error, Printable,
 };
 
@@ -38,16 +38,16 @@ pub struct ChatResponse {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChatResponseStream {
-    /// A unique identifier for the chat completion.
+    /// A unique identifier for the chat completion. Each chunk has the same ID.
     pub id: Option<String>,
 
-    /// A list of chat completion choices. Can be more than one if n is greater than 1.
-    pub choices: Vec<ChatChoice>,
+    /// A list of chat completion choices. Can contain more than one elements if n is greater than 1. Can also be empty for the last chunk if you set stream_options: {"include_usage": true}.
+    pub choices: Vec<ChatChoiceStream>,
 
-    /// The Unix timestamp (in seconds) of when the chat completion was created.
+    /// The Unix timestamp (in seconds) of when the chat completion was created. Each chunk has the same timestamp.
     pub created: Option<u32>,
 
-    /// The model used for the chat completion.
+    /// The model to generate the completion.
     pub model: Option<String>,
 
     /// The service tier used for processing the request.

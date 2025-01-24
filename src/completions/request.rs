@@ -1,18 +1,11 @@
 use std::collections::HashMap;
 
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    error::Error,
-    types::{Content, Stop, StreamOptions},
-};
+use crate::types::{Content, Stop, StreamOptions};
 
 /// https://platform.openai.com/docs/api-reference/completions/create
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = Error))]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct CompletionRequest {
     /// Id of the model
     pub model: String,
@@ -107,10 +100,4 @@ pub struct CompletionRequest {
     /// A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](https://platform.openai.com/docs/guides/safety-best-practices#end-user-ids).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub user: Option<String>,
-}
-
-impl CompletionRequest {
-    pub fn builder() -> CompletionRequestBuilder {
-        CompletionRequestBuilder::default()
-    }
 }

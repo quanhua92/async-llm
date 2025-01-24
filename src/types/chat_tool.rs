@@ -1,7 +1,4 @@
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
-use crate::error::Error;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(tag = "type")]
@@ -10,10 +7,7 @@ pub enum ChatTool {
     Function { function: ChatToolFunction },
 }
 
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = Error))]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct ChatToolFunction {
     /// The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64.
     pub name: String,

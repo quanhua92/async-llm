@@ -1,7 +1,4 @@
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
-use crate::error::Error;
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "snake_case")]
@@ -12,10 +9,7 @@ pub enum ImageDetail {
     High,
 }
 
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = Error))]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct ImageUrl {
     /// Either a URL of the image or the base64 encoded image data.
     pub url: String,

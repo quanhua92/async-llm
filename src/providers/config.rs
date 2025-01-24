@@ -1,4 +1,3 @@
-use derive_builder::Builder;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE};
 use secrecy::{ExposeSecret, SecretString};
 use std::fmt::Debug;
@@ -25,9 +24,7 @@ pub trait Config: Debug + Clone + Send + Sync {
     }
 }
 
-#[derive(Debug, Clone, Builder)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = Error))]
+#[derive(Debug, Clone)]
 pub struct OpenAIConfig {
     pub(crate) base_url: String,
     pub(crate) api_key: Option<SecretString>,

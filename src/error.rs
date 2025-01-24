@@ -22,9 +22,3 @@ pub enum Error {
     #[error("json error: {0}")]
     Json(#[from] serde_json::Error),
 }
-
-impl From<derive_builder::UninitializedFieldError> for Error {
-    fn from(value: derive_builder::UninitializedFieldError) -> Self {
-        Self::InvalidArgument(value.to_string())
-    }
-}

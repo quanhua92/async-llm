@@ -1,7 +1,4 @@
-use derive_builder::Builder;
 use serde::{Deserialize, Serialize};
-
-use crate::Error;
 
 /// An object specifying the format that the model must output.
 ///
@@ -19,10 +16,7 @@ pub enum ChatResponseFormat {
     JsonSchema { json_schema: JsonSchema },
 }
 
-#[derive(Debug, Clone, Builder, Default, Serialize, Deserialize, PartialEq)]
-#[builder(setter(into, strip_option), default)]
-#[builder(derive(Debug))]
-#[builder(build_fn(error = Error))]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct JsonSchema {
     /// A description of what the response format is for, used by the model to determine how to respond in the format.
     #[serde(skip_serializing_if = "Option::is_none")]

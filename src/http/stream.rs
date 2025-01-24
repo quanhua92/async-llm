@@ -18,7 +18,7 @@ pub async fn stream<O: DeserializeOwned + Send + 'static>(
         while let Some(event) = event_source.next().await {
             match event {
                 Err(e) => {
-                    if let Err(_) = tx.send(Err(Error::Stream(e.to_string()))) {
+                    if tx.send(Err(Error::Stream(e.to_string()))).is_err() {
                         break;
                     }
                 }
@@ -31,7 +31,7 @@ pub async fn stream<O: DeserializeOwned + Send + 'static>(
 
                         let output: Result<O, Error> =
                             serde_json::from_str::<O>(&event.data).map_err(|e| e.into());
-                        if let Err(_) = tx.send(output) {
+                        if tx.send(output).is_err() {
                             break;
                         }
                     }

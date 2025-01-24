@@ -35,14 +35,14 @@ pub struct OpenAIConfig {
 
 fn sanitize_base_url(input: impl Into<String>) -> String {
     let input: String = input.into();
-    input.trim_end_matches(|c| c == '/' || c == ' ').to_string()
+    input.trim_end_matches(['/', ' ']).to_string()
 }
 
 impl OpenAIConfig {
     pub fn new(base_url: impl Into<String>, api_key: Option<SecretString>) -> Self {
         Self {
             base_url: sanitize_base_url(base_url),
-            api_key: api_key.into(),
+            api_key,
             beta: Some("assistants=v2".into()),
             ..Default::default()
         }

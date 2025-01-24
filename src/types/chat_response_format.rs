@@ -31,9 +31,9 @@ pub struct JsonSchema {
     pub strict: Option<bool>,
 }
 
-impl Into<ChatResponseFormat> for JsonSchema {
-    fn into(self) -> ChatResponseFormat {
-        ChatResponseFormat::JsonSchema { json_schema: self }
+impl From<JsonSchema> for ChatResponseFormat {
+    fn from(value: JsonSchema) -> Self {
+        Self::JsonSchema { json_schema: value }
     }
 }
 

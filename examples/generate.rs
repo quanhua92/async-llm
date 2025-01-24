@@ -60,31 +60,6 @@ async fn main() -> Result<(), Error> {
     Ok(())
 }
 
-fn stream() {
-    // let client = Client::raw();
-    // let response = client
-    //     .chat()
-    //     .create(serde_json::to_value(request.clone()).unwrap())
-    //     .await?;
-    // tracing::info!("response: \n{}", response.to_string_pretty()?);
-
-    // let request = request.stream();
-    // let mut response = client
-    //     .chat()
-    //     .create_stream(serde_json::to_value(request).unwrap())
-    //     .await?;
-    // while let Some(result) = response.next().await {
-    //     match result {
-    //         Ok(response) => {
-    //             tracing::info!("response: \n{}", response.to_string_pretty()?);
-    //         }
-    //         Err(e) => {
-    //             tracing::error!("error = \n {e}");
-    //         }
-    //     }
-    // }
-}
-
 fn sanitize_folder_name(input: &str) -> String {
     let sanitized: String = input
         .chars()
@@ -96,9 +71,7 @@ fn sanitize_folder_name(input: &str) -> String {
         .collect();
 
     // Remove trailing periods or spaces (Windows-specific)
-    sanitized
-        .trim_end_matches(|c| c == '.' || c == ' ')
-        .to_string()
+    sanitized.trim_end_matches(['.', ' ']).to_string()
 }
 
 fn save_json_to_file(value: &Value, path: &PathBuf) -> Result<(), std::io::Error> {

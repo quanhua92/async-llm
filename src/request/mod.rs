@@ -11,11 +11,8 @@ pub trait Requestable {
 impl Requestable for serde_json::Value {
     fn stream(&self) -> bool {
         match self.get("stream") {
-            Some(stream) => match stream {
-                serde_json::Value::Bool(v) => v.to_owned(),
-                _ => false,
-            },
-            None => false,
+            Some(serde_json::Value::Bool(v)) => v.to_owned(),
+            _ => false,
         }
     }
 }

@@ -27,9 +27,9 @@ pub struct ChatToolFunction {
     pub strict: Option<bool>,
 }
 
-impl Into<ChatTool> for ChatToolFunction {
-    fn into(self) -> ChatTool {
-        ChatTool::Function { function: self }
+impl From<ChatToolFunction> for ChatTool {
+    fn from(value: ChatToolFunction) -> Self {
+        ChatTool::Function { function: value }
     }
 }
 
